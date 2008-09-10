@@ -1,0 +1,6 @@
+.*.sw?
+SetLangLexer.hs
+SetLangParser.hs
+*.o
+*.hi
+sltester
