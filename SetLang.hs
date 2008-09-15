@@ -64,10 +64,10 @@ run (SetVar var value) state = Map.alter (\x -> Just value) var state
 run (UnsetVar var) state = Map.delete var state
 run (Nop) state = state
 
-apply :: Expression -> VarState -> Maybe VarState
+apply :: (Monad m) => Expression -> VarState -> m VarState
 apply (Expression cond ss) state 
-	| eval cond state = Just (foldr run state ss)
-	| otherwise       = Nothing
+	| eval cond state = return (foldr run state ss)
+	| otherwise       = fail "Dead end."
 
 initialState :: VarState
 initialState = Map.empty

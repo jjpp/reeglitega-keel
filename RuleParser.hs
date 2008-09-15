@@ -1,8 +1,10 @@
 module RuleParser where
 
 import SetLang;
+import SetLangParser;
 import BaseRule;
 import Text.ParserCombinators.Parsec;
+import Text.ParserCombinators.Parsec.Pos;
 import Data.Set as S;
 import Data.Map as M;
 import System.IO.Unsafe;
@@ -10,9 +12,9 @@ import System.IO.Unsafe;
 type SetOfChars = Set Char
 
 data ParserState = PS {
-		terminals :: SetOfChars,
 		classes :: Map Char SetOfChars,
-		rules :: [BaseRule]
+		rules :: [BaseRule],
+		start :: String
 } deriving (Eq, Show, Read)
 
 readRuleFile :: FilePath -> String
@@ -20,72 +22,88 @@ readRuleFile fn = unsafePerformIO $ readFile fn
 
 rulefile :: GenParser Char ParserState (ParserState, Int)
 rulefile = do
-	rs <- many1 rulephrase
+	rs <- many rulephrase
 	eof
 	state <- getState
 	return (state, (sum rs))
 
-setofchars = do
-		x <- manyTill anyChar space
-		return $ S.fromList x
 		
+word = do
+	w <- many $ noneOf " \t\n"
+	return w
+whitespace = (skipMany1 $ oneOf " \t") <?> "intra word space"
 
-charsetphrase = do 
-		string ":charset"
-		skipMany1 space
-		cs <- setofchars
-		updateState (\x -> x { terminals = cs })
+eol = (skipMany1 $ char '\n') <?> "end of line"
+setofchars = do x <- word; return $ S.fromList x
+
+
+startphrase = do 
+		string "start"
+		whitespace
+		ss <- word
+		updateState (\x -> x { start = ss })
 		return 0
 
 classphrase = do
-		string ":class"
-		skipMany1 space
+		string "class"
+		whitespace
 		cls <- Text.ParserCombinators.Parsec.upper
-		skipMany1 space
+		whitespace
 		cs <- setofchars
 		state <- getState
 		updateState $ \z -> z { classes = M.alter (\x -> Just cs) cls (classes state) }
 		return 0
 
 includephrase = do
-		string ":include"
-		skipMany1 space
-		fn <- manyTill anyChar space <?> "file name"
+		string "include"
+		whitespace
+		fn <- word <?> "file name"
 		oldInput <- getInput
+		oldPosition <- getPosition
 		setInput $ readRuleFile fn
+		setPosition $ newPos fn 1 1
 		(state, count) <- try rulefile
 		setInput oldInput
 		return count
 
-emptyline = do
-		skipMany $ oneOf " \t"
-		return 0
-		<?> "empty line"
+metaphrase = do
+		try classphrase
+		<|> try includephrase
+		<|> startphrase
 
 rulephrase' :: GenParser Char ParserState Int
-rulephrase' = do
-		try charsetphrase
-		<|> try classphrase
-		<|> try includephrase
-		<|> try singlerule
-		<|> try emptyline
+rulephrase' = do 
+		char ':'; metaphrase
+		<|> singlerule
+		<|> do whitespace; return 0
 
-rulephrase = do rc <- rulephrase'; char '\n'; return rc
+rulephrase = do
+	rc <- rulephrase'
+	skipMany $ oneOf " \t"
+	eol
+	return rc
 
-subrule cs = do
-		input <- getInput
-		x <- many1 $ oneOf cs
-		left <- getInput
-		return x
+setlang = do
+	slexpr <- many $ noneOf "}"
+	return $ parseSetLang slexpr
 
-charset state = (S.toList $ terminals state) ++ (keys $ classes state) ++ "012#"
+extracondition' = do
+		whitespace
+		char '{'
+		cond <- setlang
+		char '}'
+		return cond
+extracondition = do try extracondition' <|> return nopExpression
+
 
 singlerule = do
-		st <- getState
-		u <- subrule (charset st); skipMany1 space
-		l <- subrule (charset st); skipMany1 space
-		lc <- subrule (charset st); skipMany1 space
-		rc <- subrule (charset st)
+		u <- word; whitespace
+		l <- word; whitespace
+		lc <- word; whitespace
+		rc <- word
+		cond <- try extracondition
+		state <- getState
+		updateState (\x -> x { rules = ((BaseRule u l lc rc cond) : (rules state)) })
 		return 1
 		<?> "rule"
 	

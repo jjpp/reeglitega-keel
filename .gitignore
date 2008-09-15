@@ -4,3 +4,4 @@ SetLangParser.hs
 *.o
 *.hi
 sltester
+brtester
