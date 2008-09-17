@@ -5,20 +5,23 @@ import SetLangParser;
 import BaseRule;
 import Text.ParserCombinators.Parsec;
 import Text.ParserCombinators.Parsec.Pos;
-import Data.Set as S;
-import Data.Map as M;
 import System.IO.Unsafe;
-
-type SetOfChars = Set Char
+import System.IO.UTF8 as UTF8;
+import Data.Map;
+import Data.Set;
 
 data ParserState = PS {
-		classes :: Map Char SetOfChars,
+		classes :: Classes,
 		rules :: [BaseRule],
 		start :: String
 } deriving (Eq, Show, Read)
 
+emptyParserState = PS { classes = Data.Map.empty, rules = [], start = "" } 
+
 readRuleFile :: FilePath -> String
-readRuleFile fn = unsafePerformIO $ readFile fn
+readRuleFile fn = unsafePerformIO $ UTF8.readFile fn
+
+parseRuleFile fn = runParser rulefile emptyParserState fn (readRuleFile fn)
 
 rulefile :: GenParser Char ParserState (ParserState, Int)
 rulefile = do
@@ -34,7 +37,7 @@ word = do
 whitespace = (skipMany1 $ oneOf " \t") <?> "intra word space"
 
 eol = (skipMany1 $ char '\n') <?> "end of line"
-setofchars = do x <- word; return $ S.fromList x
+setofchars = do x <- word; return $ Data.Set.fromList x
 
 
 startphrase = do 
@@ -51,7 +54,7 @@ classphrase = do
 		whitespace
 		cs <- setofchars
 		state <- getState
-		updateState $ \z -> z { classes = M.alter (\x -> Just cs) cls (classes state) }
+		updateState $ \z -> z { classes = Data.Map.alter (\x -> Just cs) cls (classes state) }
 		return 0
 
 includephrase = do
@@ -60,10 +63,12 @@ includephrase = do
 		fn <- word <?> "file name"
 		oldInput <- getInput
 		oldPosition <- getPosition
+		debug $ "pos: " ++ (show oldPosition) ++ ", input: " ++ (show oldInput)
 		setInput $ readRuleFile fn
 		setPosition $ newPos fn 1 1
 		(state, count) <- try rulefile
 		setInput oldInput
+		setPosition oldPosition
 		return count
 
 metaphrase = do
@@ -95,6 +100,8 @@ extracondition' = do
 		return cond
 extracondition = do try extracondition' <|> return nopExpression
 
+unzero ('0':_) = ""
+unzero x = x
 
 singlerule = do
 		u <- word; whitespace
@@ -103,10 +110,12 @@ singlerule = do
 		rc <- word
 		cond <- try extracondition
 		state <- getState
-		updateState (\x -> x { rules = ((BaseRule u l lc rc cond) : (rules state)) })
+		updateState (\x -> x { 
+			rules = ((BaseRule (unzero u) (unzero l) (unzero lc) (unzero rc) cond)
+				: (rules state)) })
 		return 1
 		<?> "rule"
 	
 debug :: (Monad m) => String -> m ()
-debug str = do return $ unsafePerformIO $ putStrLn str
+debug str = do return $ unsafePerformIO $ UTF8.putStrLn str
 
