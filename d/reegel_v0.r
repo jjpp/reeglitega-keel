@@ -1,0 +1,11 @@
+e u !Wik # { stem_transform = prerule && stem_grammar = v0: stem_transform = postrule }
+e u !Wikk # { stem_transform = prerule && stem_grammar = v0: stem_transform = postrule }
+e i C # { stem_transform = prerule && stem_grammar = v0: stem_transform = postrule }
+u a Wi # { stem_transform = prerule && stem_grammar = v0: stem_transform = postrule }
+u a YC # { stem_transform = prerule && stem_grammar = v0: stem_transform = postrule }
+u a YCC # { stem_transform = prerule && stem_grammar = v0: stem_transform = postrule }
+u a YCCC # { stem_transform = prerule && stem_grammar = v0: stem_transform = postrule }
+i e Ws # { stem_transform = prerule && stem_grammar = v0: stem_transform = postrule }
+i a XC # { stem_transform = prerule && stem_grammar = v0: stem_transform = postrule }
+i a XCC # { stem_transform = prerule && stem_grammar = v0: stem_transform = postrule }
+i a XCCC # { stem_transform = prerule && stem_grammar = v0: stem_transform = postrule }
