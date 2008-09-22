@@ -1,26 +1,28 @@
 module Main where
 
 import BaseRule
-import SetLangParser
+import RuleParser
+import Control.Monad
+import Debug.Trace
 
 
-main = repl (Just initialBRState) Nothing
 
-repl :: Maybe BRState -> Maybe BRState -> IO ()
-repl state defaultState =
-	case state of
-		Nothing -> do
-		 	putStrLn "No action."
-		 	repl defaultState defaultState
-		Just state -> do
-			showBRState state
-			l <- getLine
-			repl (state `brapply` (read l)) (Just state)
-	
-showBRState state = do
-		putStrLn ("'" ++ (word state) ++ "'")
-		showState (vs state)
+main = do { 	putStrLn $ "Reegleid: " ++ (show $ length rs);
+		putStrLn $ "Tulemusi: " ++ (show $ length x);
+		putStrLn $ showstates $ x
+	} where 
+		ps = case parseRuleFile "eki.r" of
+			Left err -> error (show err)
+			Right s -> (fst s)
+		rs = reverse $ rules ps
+		isIn = isInClasses $ classes ps
+		startWord = start ps
+		x = generate startWord isIn rs
 
-showState = sequence_ . (map showVar) . variablePairs 
-showVar (id, val) = putStrLn (id ++ " = " ++ val)
+generate w isIn rs = process [initialBRState { cw = w }] isIn rs []
 
+process :: [BRState] -> IsIn -> [BaseRule] -> [BRState] -> [BRState]
+process ss isIn rs seenStates = trace ("Processing " ++ (show ss))
+	ss ++ (concat $ map (\state -> process (brapply isIn state rs) isIn rs (seenStates ++ ss)) $ filter (\s -> not (s `elem` seenStates)) ss)
+
+showstates ss = foldl (\x -> \y -> x ++ "\n" ++ (show y)) "" ss

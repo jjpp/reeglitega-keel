@@ -11,7 +11,7 @@ RTOOL=Makefile cvt_rul.pl
 ICONV=iconv -flatin1 -tutf8 | sed -e 's/þ/ž/g' -e 's/ð/š/g' 
 
 
-reegel_0g.r:	../ekidata/rules_0g.rul 
+reegel_0g.r:	../ekidata/rules_0g.rul $(RTOOL)
 	cat ../ekidata/rules_0g.rul | $(ICONV) | ./cvt_rul.pl 0g > reegel_0g.r
 
 reegel_0r.r:	../ekidata/rules_0r.rul $(RTOOL)

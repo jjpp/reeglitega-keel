@@ -15,6 +15,6 @@ SetLangParser.hs: SetLangParser.y
 sltester: Main.hs $(SETLANG)
 	$(GHC) --make -o sltester Main.hs
 
-brtester: BRMain.hs $(SETLANG) BaseRule.hs
+brtester: BRMain.hs $(SETLANG) BaseRule.hs RuleParser.hs
 	$(GHC) --make -o brtester BRMain.hs
 

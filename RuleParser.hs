@@ -9,6 +9,7 @@ import System.IO.Unsafe;
 import System.IO.UTF8 as UTF8;
 import Data.Map;
 import Data.Set;
+import Debug.Trace;
 
 data ParserState = PS {
 		classes :: Classes,
@@ -63,13 +64,14 @@ includephrase = do
 		fn <- word <?> "file name"
 		oldInput <- getInput
 		oldPosition <- getPosition
-		debug $ "pos: " ++ (show oldPosition) ++ ", input: " ++ (show oldInput)
 		setInput $ readRuleFile fn
 		setPosition $ newPos fn 1 1
 		(state, count) <- try rulefile
 		setInput oldInput
 		setPosition oldPosition
 		return count
+
+comment = (many $ noneOf "\n") <?> "comment"
 
 metaphrase = do
 		try classphrase
@@ -79,6 +81,8 @@ metaphrase = do
 rulephrase' :: GenParser Char ParserState Int
 rulephrase' = do 
 		char ':'; metaphrase
+		<|> do { char ' '; comment; return 0 }
+		<|> do { char '\t'; comment; return 0 }
 		<|> singlerule
 		<|> do whitespace; return 0
 
@@ -98,7 +102,7 @@ extracondition' = do
 		cond <- setlang
 		char '}'
 		return cond
-extracondition = do try extracondition' <|> return nopExpression
+extracondition defaultExpr = do try extracondition' <|> return defaultExpr
 
 unzero ('0':_) = ""
 unzero x = x
@@ -108,10 +112,11 @@ singlerule = do
 		l <- word; whitespace
 		lc <- word; whitespace
 		rc <- word
-		cond <- try extracondition
+		cond <- try (extracondition nopExpression)
+		elseCond <- try (extracondition noExpression)
 		state <- getState
 		updateState (\x -> x { 
-			rules = ((BaseRule (unzero u) (unzero l) (unzero lc) (unzero rc) cond)
+			rules = ((BaseRule (unzero u) (unzero l) (unzero lc) (unzero rc) cond elseCond)
 				: (rules state)) })
 		return 1
 		<?> "rule"
