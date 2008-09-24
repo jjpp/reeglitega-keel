@@ -1,10 +1,8 @@
-#rule_or1.rul
-#rule_or2.rul
 
-ERANDID=erand_0gg0.r erand_0rr0.r erand_0vv0.r erand_abba.r erand_bccb.r erand_nttn.r
-REEGLID=reegel_0g.r reegel_0r.r reegel_0v.r reegel_ab.r reegel_ba.r reegel_bc.r reegel_cb.r reegel_g0.r reegel_nt.r reegel_r0.r reegel_tn.r reegel_v0.r 
+ERANDID=erand_0gg0.r erand_0rr0.r erand_0vv0.r erand_abba.r erand_bccb.r erand_nttn.r erand_ort1.r erand_ort2.r
+REEGLID=reegel_0g.r reegel_0r.r reegel_0v.r reegel_ab.r reegel_ba.r reegel_bc.r reegel_cb.r reegel_g0.r reegel_nt.r reegel_r0.r reegel_tn.r reegel_v0.r reegel_ort1.r reegel_ort2.r
 
-all:	 $(REEGLID) $(ERANDID)
+all:	 $(REEGLID) $(ERANDID) stemguide.r
 
 ETOOL=Makefile cvt_exc.pl
 RTOOL=Makefile cvt_rul.pl
@@ -47,6 +45,14 @@ reegel_tn.r:	../ekidata/rules_tn.rul $(RTOOL)
 reegel_v0.r:	../ekidata/rules_v0.rul $(RTOOL)
 	cat ../ekidata/rules_v0.rul | $(ICONV) | ./cvt_rul.pl v0 > reegel_v0.r
 
+reegel_ort1.r:	../ekidata/rule_or1.rul $(RTOOL)
+	cat ../ekidata/rule_or1.rul | $(ICONV) | ./cvt_rul.pl ort1 > reegel_ort1.r
+
+reegel_ort2.r:	../ekidata/rule_or2.rul $(RTOOL)
+	cat ../ekidata/rule_or2.rul | $(ICONV) | ./cvt_rul.pl ort2 > reegel_ort2.r
+
+
+
 erand_0gg0.r:	../ekidata/0g_g0.exc $(ETOOL)
 	cat ../ekidata/0g_g0.exc | $(ICONV) | ./cvt_exc.pl > erand_0gg0.r
 
@@ -65,4 +71,13 @@ erand_bccb.r:	../ekidata/bc_cb.exc $(ETOOL)
 erand_nttn.r:	../ekidata/nt_tn.exc $(ETOOL)
 	cat ../ekidata/nt_tn.exc | $(ICONV) | ./cvt_exc.pl > erand_nttn.r
 
+erand_ort1.r:	../ekidata/ort1.exc $(ETOOL)
+	cat ../ekidata/ort1.exc | $(ICONV) | ./cvt_exc.pl > erand_ort1.r
+
+erand_ort2.r:	../ekidata/ort2.exc $(ETOOL)
+	cat ../ekidata/ort2.exc | $(ICONV) | ./cvt_exc.pl > erand_ort2.r
+
+
+stemguide.r:	../ekidata/stemguid.txt cvt_stemguide.pl Makefile
+	./cvt_stemguide.pl ../ekidata/stemguid.txt > stemguide.r
 

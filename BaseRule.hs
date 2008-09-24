@@ -29,26 +29,50 @@ lowercond' rule = (precond rule) ++ (BaseRule.lower rule)
 data BRState = BRState { cw :: Str, vs :: VarState }
 	deriving (Eq, Show)
 
+
+
+stopState :: BRState -> Bool
+stopState s = "stop" `M.member` (vs s)
+
+unStop s = s { vs = "stop" `M.delete` (vs s) }
+
 brapply :: (MonadPlus m) => IsIn -> BRState -> [BaseRule] -> (m BRState)
-brapply isIn state rs = msum $ Prelude.map (trace ("state in brapply: " ++ (show state)) brapply' isIn state) rs
+brapply _ _ [] = mzero
+brapply isIn state (r:rs) = case state' of
+			Nothing -> rest
+			Just st -> if stopState st
+					then return $ unStop st
+					else (return st) `mplus` rest
+		where rest = brapply isIn state rs
+		      state' = brapply' isIn state r
+--		      state' = trace ("brapply' " ++ (showState state) ++ " " ++ (show r)) brapply' isIn state r
+
+			
+
+-- msum $ brfilter $ Prelude.map (trace ("state in brapply: " ++ (show state)) brapply' isIn state) rs
 
 -- transformWord :: (Monad m) => Str -> BaseRule -> m Str
 -- transformWord ws rule = return $ subRegex (mkRegex (uppercond rule)) ws (lowercond rule) 
 
 brapply' :: (MonadPlus m) => IsIn -> BRState -> BaseRule -> m BRState
-brapply' isIn state rule = case (transformWord isIn (cw state) rule) of
-				(Just newWord) -> brapply'' newWord state (matchExpr rule) rule
-				_ -> brapply'' oldWord state (nomatchExpr rule) rule
-			where oldWord = cw state
+brapply' isIn state rule = case (matchState `mplus` nomatchState) of
+				(Just _) -> case (transformWord isIn (cw state) rule) of
+						(Just newWord) -> brapply'' newWord state matchState rule
+						_ -> brapply'' oldWord state nomatchState rule
+				otherwise -> fail "no match"
+			where 	oldWord = cw state
+				matchState = apply (matchExpr rule) (vs state)
+				nomatchState = apply (nomatchExpr rule) (vs state)
 
-brapply'' word state expr rule = do
+brapply'' :: (MonadPlus m) => Str -> BRState -> Maybe VarState -> BaseRule -> m BRState
+brapply'' word state (Just varstate') rule = do
 --			dbg $ "brapply' " ++ (show state) ++ " " ++ (show rule)
-			varstate' <- apply expr (vs state)
-			dbg $ "\tstate = " ++ (show state)
+			dbg $ "\tstate = " ++ (showState state)
 			dbg $ "\trule was = " ++ (show rule)
-			dbg $ "\tvarstate = " ++ (show varstate')
+			dbg $ "\tvarstate = " ++ (showVS varstate')
 			dbg $ "\tword' = " ++ (show word)
 			return (BRState word varstate')
+brapply'' _ _ Nothing _ = fail "No match"
 
 initialBRState = BRState "START" initialState
 nopExpression = Expression CTrue []
@@ -86,9 +110,10 @@ findMatch' x isIn ps ww@(w:ws) = mplus
 
 transformWord :: (MonadPlus m) => IsIn -> Str -> BaseRule -> m Str
 transformWord isIn ws rule = do
+--			dbg $ "transformWord: " ++ (show ws) ++ " " ++ (show rule)
 			match <- findMatch isIn upper' ws
 --			dbg $ "transformWord: " ++ (show ws) ++ " " ++ (show rule)
---			dbg $ "match = " ++ (show match)
+			dbg $ "match = " ++ (show match)
 			return ((take match ws) ++ (transform upper'' lower'' [] Nothing (drop match ws)))
 		where
 			upper'' = (uppercond' rule)
@@ -124,3 +149,5 @@ ucheck _ = 0
 dbg :: (Monad m) => String -> m ()
 dbg str = do trace str return ()
 
+showState :: BRState -> String
+showState s = "{ " ++ (show (cw s)) ++ " " ++ (showVS (vs s)) ++ "}"

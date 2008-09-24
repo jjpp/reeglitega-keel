@@ -71,3 +71,7 @@ apply (Expression cond ss) state
 
 initialState :: VarState
 initialState = Map.empty
+
+showVS :: VarState -> String
+showVS vs = foldr (\a -> \b -> a ++ "; " ++ b) "" $ map (\x -> (fst x) ++ " = " ++ (snd x)) $ Map.toList vs
+

@@ -9,7 +9,7 @@ import Debug.Trace
 
 main = do { 	putStrLn $ "Reegleid: " ++ (show $ length rs);
 		putStrLn $ "Tulemusi: " ++ (show $ length x);
-		putStrLn $ showstates $ x
+		putStrLn $ showstates "\n" x
 	} where 
 		ps = case parseRuleFile "eki.r" of
 			Left err -> error (show err)
@@ -22,7 +22,7 @@ main = do { 	putStrLn $ "Reegleid: " ++ (show $ length rs);
 generate w isIn rs = process [initialBRState { cw = w }] isIn rs []
 
 process :: [BRState] -> IsIn -> [BaseRule] -> [BRState] -> [BRState]
-process ss isIn rs seenStates = trace ("Processing " ++ (show ss))
+process ss isIn rs seenStates = trace ("Processing " ++ (showstates "|" ss))
 	ss ++ (concat $ map (\state -> process (brapply isIn state rs) isIn rs (seenStates ++ ss)) $ filter (\s -> not (s `elem` seenStates)) ss)
 
-showstates ss = foldl (\x -> \y -> x ++ "\n" ++ (show y)) "" ss
+showstates sep ss = foldl (\x -> \y -> x ++ sep ++ (showState y)) "" ss
