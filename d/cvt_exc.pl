@@ -25,6 +25,6 @@ sub rule {
 	return if $a eq '0';
 	$st = 'dead_end' if $b eq '0';
 
-	print "#$a# #$b# 0 0 { type = $num && $precond: stem_transform = $st; stop = 1 }\n";
+	print "#$a# #$b# 0 0 { type = $num && $precond: stem_transform = $st }\n";
 }
 
