@@ -1,4 +1,4 @@
-:start #$#
+:start #{START}#
 :class W aeiouõäöüy
 :class E aeu
 :class I aei
@@ -30,39 +30,54 @@
 :class Ö dtslkng
 :class P gbdkptfh
 
-$ mina 0 0 { true: type = 00; stem = a0 }
-$ vallatu 0 0 { true: type = 01; stem = a0 }
-$ õpik 0 0 { true: type = 02; stem = a0 }
-$ vaher 0 0 { true: type = 03; stem = an }
-$ ase 0 0 { true: type = 04; stem = a0 }
-$ liige 0 0 { true: type = 05; stem = an }
-$ mõte 0 0 { true: type = 06; stem = an }
-$ perse 0 0 { true: type = 06; stem = an }
-$ hammas 0 0 { true: type = 07; stem = an }
-$ taevas 0 0 { true: type = 07; stem = an }
-$ tütar 0 0 { true: type = 08; stem = an }
-$ katus 0 0 { true: type = 09; stem = a0 }
-$ soolane 0 0 { true: type = 10; stem = a0 }
-$ harjutus 0 0 { true: type = 11; stem = a0 }
-$ oluline 0 0 { true: type = 12; stem = a0 }
-$ s'uur 0 0 { true: type = 13; stem = at }
-$ 'uus 0 0 { true: type = 14; stem = at }
-$ käsi 0 0 { true: type = 15; stem = at }
-$ kõne 0 0 { true: type = 16; stem = a0 }
-$ saba 0 0 { true: type = 17; stem = a0 }
-$ sõda 0 0 { true: type = 18; stem = at }
-$ seminar 0 0 { true: type = 19; stem = a0 }
-$ nimi 0 0 { true: type = 20; stem = a0 }
-$ lumi 0 0 { true: type = 20; stem = a0 }
-$ jõgi 0 0 { true: type = 21; stem = at }
-$ s'epp 0 0 { true: type = 22; stem = at }
-$ m'ets 0 0 { true: type = 22; stem = at }
-$ h'ein 0 0 { true: type = 23; stem = at }
-$ padi 0 0 { true: type = 24; stem = an }
-$ õnnel'ik 0 0 { true: type = 25; stem = at }
-$ id'ee 0 0 { true: type = 26; stem = a0 }
-$ s'uu 0 0 { true: type = 26; stem = a0 }
+{START} {VERB} 0 0
+{START} {NOOMEN} 0 0
 
+ {NOOMEN} mina 0 0 { true: type = 00; stem = a0 }
+ {NOOMEN} vallatu 0 0 { true: type = 01; stem = a0 }
+ {NOOMEN} õpik 0 0 { true: type = 02; stem = a0 }
+ {NOOMEN} vaher 0 0 { true: type = 03; stem = an }
+ {NOOMEN} ase 0 0 { true: type = 04; stem = a0 }
+ {NOOMEN} liige 0 0 { true: type = 05; stem = an }
+ {NOOMEN} mõte 0 0 { true: type = 06; stem = an }
+ {NOOMEN} perse 0 0 { true: type = 06; stem = an }
+ {NOOMEN} hammas 0 0 { true: type = 07; stem = an }
+ {NOOMEN} taevas 0 0 { true: type = 07; stem = an }
+ {NOOMEN} tütar 0 0 { true: type = 08; stem = an }
+ {NOOMEN} katus 0 0 { true: type = 09; stem = a0 }
+ {NOOMEN} soolane 0 0 { true: type = 10; stem = a0 }
+ {NOOMEN} harjutus 0 0 { true: type = 11; stem = a0 }
+ {NOOMEN} oluline 0 0 { true: type = 12; stem = a0 }
+ {NOOMEN} s'uur 0 0 { true: type = 13; stem = at }
+ {NOOMEN} 'uus 0 0 { true: type = 14; stem = at }
+ {NOOMEN} käsi 0 0 { true: type = 15; stem = at }
+ {NOOMEN} kõne 0 0 { true: type = 16; stem = a0 }
+ {NOOMEN} saba 0 0 { true: type = 17; stem = a0 }
+ {NOOMEN} sõda 0 0 { true: type = 18; stem = at }
+ {NOOMEN} seminar 0 0 { true: type = 19; stem = a0 }
+ {NOOMEN} nimi 0 0 { true: type = 20; stem = a0 }
+ {NOOMEN} lumi 0 0 { true: type = 20; stem = a0 }
+ {NOOMEN} jõgi 0 0 { true: type = 21; stem = at }
+ {NOOMEN} s'epp 0 0 { true: type = 22; stem = at }
+ {NOOMEN} m'ets 0 0 { true: type = 22; stem = at }
+ {NOOMEN} h'ein 0 0 { true: type = 23; stem = at }
+ {NOOMEN} padi 0 0 { true: type = 24; stem = an }
+ {NOOMEN} õnnel'ik 0 0 { true: type = 25; stem = at }
+{NOOMEN} id'ee 0 0 { true: type = 26; stem = a0 }
+{NOOMEN} s'uu 0 0 { true: type = 26; stem = a0 }
+ 
+ {VERB} ela 0 0 { true: type = 27; stem = a0 }
+ {VERB} l'eppi 0 0 { true: type = 28; stem = at }
+ {VERB} h'üppa 0 0 { true: type = 29; stem = at }
+ {VERB} r'iidle 0 0 { true: type = 30; stem = at }
+ {VERB} rabele 0 0 { true: type = 31; stem = a0 }
+ {VERB} s'eis 0 0 { true: type = 32; stem = at }
+ {VERB} n'aer 0 0 { true: type = 33; stem = at }
+ {VERB} s'ööt 0 0 { true: type = 34; stem = at }
+ {VERB} n'ut 0 0 { true: type = 35; stem = at }
+ {VERB} tule 0 0 { true: type = 36; stem = an }
+ {VERB} v'õi 0 0 { true: type = 37; stem = at }
+ {VERB} s'öö 0 0 { true: type = 38; stem = at }
 
 
 :include d/stemguide.r

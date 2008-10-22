@@ -14,10 +14,12 @@ import Debug.Trace;
 data ParserState = PS {
 		classes :: Classes,
 		rules :: [BaseRule],
-		start :: String
+		start :: String,
+		nonterminals :: (Map String Char),
+		nextNT :: Char
 } deriving (Eq, Show, Read)
 
-emptyParserState = PS { classes = Data.Map.empty, rules = [], start = "" } 
+emptyParserState = PS { classes = Data.Map.empty, rules = [], start = "", nonterminals = Data.Map.empty, nextNT = '\x10000' } 
 
 readRuleFile :: FilePath -> String
 readRuleFile fn = unsafePerformIO $ UTF8.readFile fn
@@ -44,7 +46,7 @@ setofchars = do x <- word; return $ Data.Set.fromList x
 startphrase = do 
 		string "start"
 		whitespace
-		ss <- word
+		ss <- grammarword
 		updateState (\x -> x { start = ss })
 		return 0
 
@@ -107,11 +109,52 @@ extracondition defaultExpr = do try extracondition' <|> return defaultExpr
 unzero ('0':_) = ""
 unzero x = x
 
+-- word = do
+--	w <- many $ noneOf " \t\n"
+--	return w
+-- 
+
+allocateNT :: ParserState -> String -> ParserState
+allocateNT state word = if word `Data.Map.member` (nonterminals state) 
+		then state
+		else state {
+			nonterminals = Data.Map.alter (\x -> Just (nextNT state)) word (nonterminals state),
+			nextNT = succ (nextNT state)
+		}
+
+getNT :: ParserState -> String -> Char
+getNT state word = case (Data.Map.lookup word (nonterminals state)) of
+			Just x -> x
+			_ -> error ("Mitteterminal " ++ word ++ " oli registreerimata?")
+
+grammarNT = do
+	w <- many $ noneOf "}"
+	char '}'
+	state <- getState
+	setState (allocateNT state w)
+	state <- getState
+	return $ getNT state w
+
+nonterminal = do
+	char '{'
+	x <- grammarNT
+	return x
+
+
+grammarchar = do
+	try nonterminal
+	<|> noneOf " \t\n"
+
+grammarword = do
+	w <- many $ grammarchar
+	return w
+		
+
 singlerule = do
-		u <- word; whitespace
-		l <- word; whitespace
-		lc <- word; whitespace
-		rc <- word
+		u <- grammarword; whitespace
+		l <- grammarword; whitespace
+		lc <- grammarword; whitespace
+		rc <- grammarword
 		cond <- try (extracondition nopExpression)
 		elseCond <- try (extracondition noExpression)
 		state <- getState
