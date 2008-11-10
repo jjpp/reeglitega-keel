@@ -2,6 +2,9 @@
 
 use strict;
 
+my %count = ();
+my @rules = ();
+
 while (<>) {
 	chomp();
 	chomp();
@@ -17,14 +20,26 @@ while (<>) {
 	rule($form, $lemma, $num, $g[1], $st1) if (@g > 1);
 }
 
+for (@rules) {
+	my $stop = $count{$_ -> [0]} == $_ -> [1] ? "; stop = 1" : "";
+
+	print $_ -> [2] . $stop . " }\n";
+}
+
+exit 0;
+
 sub rule {
 	my ($a, $b, $num, $g, $st) = @_;
 
 	my $precond = "stem_transform = preexc && stem_grammar = $g";
 	
+
 	return if $a eq '0';
 	$st = 'dead_end' if $b eq '0';
 
-	print "#$a# #$b# 0 0 { type = $num && $precond: stem_transform = $st }\n";
+	my $key = $a . ' ' . $num . ' ' . $g;
+	$count{$key} = 0 unless defined($count{$key});
+	$count{$key} ++;
+	push @rules, [ $key, $count{$key}, "#$a# #$b# 0 0 { type = $num && $precond: stem_transform = $st" ];
 }
 

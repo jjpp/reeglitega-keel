@@ -45,7 +45,7 @@ while (<>) {
 
 		if (defined($p)) {
 			my $g = get_grammar($p, $w);
-			print "0 0 0 0 { type = $num && stem = $p && !defined(stem_transform): "
+			print "0 0 0 0 { type = $num && stem = $p && (!defined(stem_transform)) && (!defined(form)) && (!defined(target_form)): "
 				. "stem_transform = preexc; stem_grammar = $g; target_stem = $w }\n";
 			if ($exc) {
 				print "0 0 0 0 { type = $num && stem_grammar = $g && stem_transform = postexc: stem_transform = postrule; stop = 1 }\n";

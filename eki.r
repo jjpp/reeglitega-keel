@@ -35,9 +35,12 @@
 
  {NOOMEN} mina 0 0 { true: type = 00; stem = a0 }
  {NOOMEN} vallatu 0 0 { true: type = 01; stem = a0 }
- {NOOMEN} õpik 0 0 { true: type = 02; stem = a0 }
+{NOOMEN} õpik 0 0 { true: type = 02; stem = a0 }
+ {NOOMEN} 'andur 0 0 { true: type = 02; stem = a0 }
+ {NOOMEN} pagas 0 0 { true: type = 02; stem = a0 }
  {NOOMEN} vaher 0 0 { true: type = 03; stem = an }
  {NOOMEN} ase 0 0 { true: type = 04; stem = a0 }
+ {NOOMEN} süda 0 0 { true: type = 04; stem = a0 }
  {NOOMEN} liige 0 0 { true: type = 05; stem = an }
  {NOOMEN} mõte 0 0 { true: type = 06; stem = an }
  {NOOMEN} perse 0 0 { true: type = 06; stem = an }
@@ -63,8 +66,8 @@
  {NOOMEN} h'ein 0 0 { true: type = 23; stem = at }
  {NOOMEN} padi 0 0 { true: type = 24; stem = an }
  {NOOMEN} õnnel'ik 0 0 { true: type = 25; stem = at }
-{NOOMEN} id'ee 0 0 { true: type = 26; stem = a0 }
-{NOOMEN} s'uu 0 0 { true: type = 26; stem = a0 }
+ {NOOMEN} id'ee 0 0 { true: type = 26; stem = a0 }
+ {NOOMEN} s'uu 0 0 { true: type = 26; stem = a0 }
  
  {VERB} ela 0 0 { true: type = 27; stem = a0 }
  {VERB} l'eppi 0 0 { true: type = 28; stem = at }
@@ -91,7 +94,7 @@
 :include d/erand_ort1.r
 :include d/erand_ort2.r
 
-0 0 0 0 { stem_transform = preexc: stem_transform = prerule }
+0 0 0 0 { stem_transform = preexc: stem_transform = prerule; stop = 1 }
 
 :include d/reegel_0g.r
 :include d/reegel_g0.r
@@ -109,3 +112,5 @@
 :include d/reegel_ort2.r
 
 :include degrees.r
+
+:include d/vormid.r
