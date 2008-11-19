@@ -33,14 +33,15 @@
 {START} {VERB} 0 0
 {START} {NOOMEN} 0 0
 
- {NOOMEN} mina 0 0 { true: type = 00; stem = a0 }
- {NOOMEN} vallatu 0 0 { true: type = 01; stem = a0 }
-{NOOMEN} õpik 0 0 { true: type = 02; stem = a0 }
+ {NOOMEN} mina 0 0 { true: type = 00; stem = a0; lemma = mina }
+ {NOOMEN} k'es 0 0 { true: type = 00; stem = a0; lemma = k'es }
+ {NOOMEN} vallatu 0 0 { true: type = 01; stem = a0; lemma = vallatu }
+ {NOOMEN} õpik 0 0 { true: type = 02; stem = a0 }
  {NOOMEN} 'andur 0 0 { true: type = 02; stem = a0 }
  {NOOMEN} pagas 0 0 { true: type = 02; stem = a0 }
  {NOOMEN} vaher 0 0 { true: type = 03; stem = an }
  {NOOMEN} ase 0 0 { true: type = 04; stem = a0 }
- {NOOMEN} süda 0 0 { true: type = 04; stem = a0 }
+{NOOMEN} süda 0 0 { true: type = 04; stem = a0; lemma = süda }
  {NOOMEN} liige 0 0 { true: type = 05; stem = an }
  {NOOMEN} mõte 0 0 { true: type = 06; stem = an }
  {NOOMEN} perse 0 0 { true: type = 06; stem = an }
@@ -67,7 +68,9 @@
  {NOOMEN} padi 0 0 { true: type = 24; stem = an }
  {NOOMEN} õnnel'ik 0 0 { true: type = 25; stem = at }
  {NOOMEN} id'ee 0 0 { true: type = 26; stem = a0 }
- {NOOMEN} s'uu 0 0 { true: type = 26; stem = a0 }
+ {NOOMEN} s'uu 0 0 { true: type = 26; stem = a0; lemma = s'uu }
+ {NOOMEN} p'uu 0 0 { true: type = 26; stem = a0; lemma = p'uu }
+ {NOOMEN} h'ea 0 0 { true: type = 26; stem = a0; lemma = h'ea }
  
  {VERB} ela 0 0 { true: type = 27; stem = a0 }
  {VERB} l'eppi 0 0 { true: type = 28; stem = at }

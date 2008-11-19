@@ -7,31 +7,15 @@ my $mode = 'other';
 my $type = 'XX';
 my $clean_stem = '(!defined(target_stem)) && (!defined(stem_transform)) && (!defined(form))';
 my @stoppers = ();
+my @exception_stoppers = ();
 my %required_forms = ();
 
 load_form_codes(shift @ARGV);
-
-while (<>) {
-	chomp();
-	s/$//;
-
-	next if /^\s*$/;
-
-	if (/^tyyp=(.*)$/) {
-		$type = sprintf("%02d", $1);
-		next;
-	}
-
-	my ($form, $rest) = split(':', $_, 2);
-
-	my @rules = split(/[|&]/, $rest);
+process_exceptions(shift @ARGV);
+output_exception_stoppers();
+process_rules(shift @ARGV);
 
 
-#	print STDERR "type = $type, form = $form, rest = [$rest], rules = [@rules]\n";
-
-	gen_rules($form, $rest);
-
-}
 
 for (sort values %required_forms) {
 	print $_;
@@ -43,6 +27,69 @@ for (@stoppers) {
 
 exit 0;
 
+sub output_exception_stoppers {
+	my %x = map { $_ => 1 } @exception_stoppers;
+	for (sort keys %x) {
+		print $_;
+	}
+}
+
+sub process_rules {
+	open (R, "<$_[0]") || die "reeglifaili $_[0] ei saa avada?";
+	while (<R>) {
+		chomp();
+		s/$//;
+
+		next if /^\s*$/;
+
+		if (/^tyyp=(.*)$/) {
+			$type = sprintf("%02d", $1);
+			next;
+		}
+
+		my ($form, $rest) = split(':', $_, 2);
+		my @rules = split(/[|&]/, $rest);
+
+		gen_rules($form, $rest);
+	}
+	close R;
+}
+
+sub process_exceptions {
+	open (E, "<$_[0]") || die "erandifaili $_[0] ei saa avada?";
+	while (<E>) {
+		chomp;
+		s/$//;
+		next if /^\s*$/;
+		
+		my ($tk, $lemma, $form, $formcode, $homocode, $homoform, $exctype) = split(',');
+		my ($type, $kinds) = split('_', $tk);
+
+		my $pref = '';
+		my $suff = '';
+
+		if ($form =~ /^(.*)\[(.*)\]$/) {
+			$pref = $1;
+			$suff = $2;
+			$form = $1 . $2;
+		} else {
+			
+			$form = "X";
+		}
+
+		my $stem = $lemma;
+		my $homoclause = '';
+		if ($homocode ne '-') {
+			$homoclause = '&& stem = $homocode'
+		}
+
+		my $cond = "$clean_stem && lemma = $lemma && target_form = $formcode $homoclause";
+
+		print "$stem $form 0 # { $cond: unset stem; unset target_form; form = $formcode }\n" unless ($form eq 'X');
+		push @exception_stoppers, "0 0 0 0 { $cond: stop = 1 }\n" if ($exctype eq '*');
+	}
+	close(E);
+}
 
 
 sub gen_rules {
@@ -73,8 +120,8 @@ sub gen_rules {
 
 	my $clause = "stem = $stem && type = $type";
 
-	$required_forms{$type, $form, $stem}
-		= "0 0 0 0 { $clause && $clean_stem && !defined(target_form): target_form = $form }\n";
+#	$required_forms{$type, $form, $stem}
+#		= "0 0 0 0 { $clause && $clean_stem && !defined(target_form): target_form = $form }\n";
 
 
 	print "# $suff# 0 0 { $clause && $clean_stem && target_form = $form"
@@ -110,6 +157,8 @@ sub load_form_codes {
 
 		$codes{$ekicode} = $abbr;
 		$codes{$abbr} = $ekicode;
+		$required_forms{$ekicode}
+			= "0 0 0 0 { defined(stem) && $clean_stem && !defined(target_form): target_form = $ekicode }\n";
 
 #		print "$ekicode -> $fscode, $abbr, $mode\n";
 
