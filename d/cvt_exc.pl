@@ -21,7 +21,8 @@ while (<>) {
 }
 
 for (@rules) {
-	my $stop = $count{$_ -> [0]} == $_ -> [1] ? "; stop = 1" : "";
+#	my $stop = $count{$_ -> [0]} == $_ -> [1] ? "; stop = 1" : "";
+	my $stop = "";
 
 	print $_ -> [2] . $stop . " }\n";
 }

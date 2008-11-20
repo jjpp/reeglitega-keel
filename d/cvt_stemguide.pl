@@ -25,6 +25,7 @@ while (<>) {
 
 	while (@w) {
 		my $w = shift @w;
+		$exc = 0;
 
 		if ($w =~ /^;/) {
 			$p = undef;
@@ -32,7 +33,7 @@ while (<>) {
 		}
 
 		if ($w =~ /^>/) {
-			$exc = !$allexc && ($w =~ /#$/);
+			$exc = $allexc || ($w =~ /#$/);
 			$ort1 = $w =~ /\+$/;
 			$ort2 = $w =~ /\*$/;
 			next;
