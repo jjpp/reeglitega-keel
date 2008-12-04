@@ -147,7 +147,8 @@ ucheck (x:xs) = 1
 ucheck _ = 0
 
 dbg :: (Monad m) => String -> m ()
-dbg str = do trace str return ()
+-- dbg str = do trace str return ()
+dbg str = do return ()
 
 showState :: BRState -> String
 showState s = "{ " ++ (show (cw s)) ++ " " ++ (showVS (vs s)) ++ "}"

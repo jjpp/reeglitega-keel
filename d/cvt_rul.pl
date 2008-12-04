@@ -16,9 +16,9 @@ while (<>) {
 	next if /^\//;
 
 	my ($upper, $lower, $lc, $rc) = split(' ');
-	print "$upper $lower $lc $rc { stem_transform = prerule && stem_grammar = $grammar: stem_transform = $postrule; stop = 1 }\n";
+	print "$upper $lower $lc $rc { step = tyved && stem_transform = prerule && stem_grammar = $grammar: stem_transform = $postrule; stop = 1 }\n";
 }
 
 if ($identity) {
-	print "0 0 0 0 { stem_grammar = $grammar && stem_transform = prerule: stem_transform = $postrule; stop = 1 }\n"
+	print "0 0 0 0 { step = tyved && stem_grammar = $grammar && stem_transform = prerule: stem_transform = $postrule; stop = 1 }\n"
 }

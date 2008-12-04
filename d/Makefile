@@ -2,12 +2,13 @@
 ERANDID=erand_0gg0.r erand_0rr0.r erand_0vv0.r erand_abba.r erand_bccb.r erand_nttn.r erand_ort1.r erand_ort2.r
 REEGLID=reegel_0g.r reegel_0r.r reegel_0v.r reegel_ab.r reegel_ba.r reegel_bc.r reegel_cb.r reegel_g0.r reegel_nt.r reegel_r0.r reegel_tn.r reegel_v0.r reegel_ort1.r reegel_ort2.r
 VORMI_REEGLID=vormid.r
+LEMMAD=lemmad.r
 
-all:	 $(REEGLID) $(ERANDID) stemguide.r $(VORMI_REEGLID)
+all:	 $(REEGLID) $(ERANDID) stemguide.r $(VORMI_REEGLID) $(LEMMAD)
 
 ETOOL=Makefile cvt_exc.pl
 RTOOL=Makefile cvt_rul.pl
-ICONV=iconv -flatin1 -tutf8 | sed -e 's/þ/ž/g' -e 's/ð/š/g' 
+ICONV=iconv -flatin1 -tutf8 | sed -e 's/\xc3\xbe/\xc5\xbe/g' -e 's/\xc3\xb0/\xc5\xa1/g' 
 
 
 reegel_0g.r:	../ekidata/rules_0g.rul $(RTOOL)
@@ -83,5 +84,7 @@ stemguide.r:	../ekidata/stemguid.txt cvt_stemguide.pl Makefile
 	./cvt_stemguide.pl ../ekidata/stemguid.txt > stemguide.r
 
 vormid.r: 	../ekidata/fcodes.ini ../ekidata/Form.rul cvt_form_rules.pl Makefile ../ekidata/form.exc
-	./cvt_form_rules.pl ../ekidata/fcodes.ini ../ekidata/form.exc ../ekidata/Form.rul > vormid.r
+	./cvt_form_rules.pl ../ekidata/fcodes.ini ../ekidata/form.exc ../ekidata/Form.rul | $(ICONV) > vormid.r
 
+lemmad.r:	../ekidata/lemma-unpacked.txt Makefile cvt_lex.pl
+	cat ../ekidata/lemma-unpacked.txt | $(ICONV) | ./cvt_lex.pl > lemmad.r

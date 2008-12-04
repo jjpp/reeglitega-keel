@@ -5,7 +5,7 @@ use strict;
 my %codes;
 my $mode = 'other';
 my $type = 'XX';
-my $clean_stem = '(!defined(target_stem)) && (!defined(stem_transform)) && (!defined(form))';
+my $clean_stem = 'step = vormid && (!defined(form))';
 my @stoppers = ();
 my @exception_stoppers = ();
 my %required_forms = ();
@@ -85,7 +85,7 @@ sub process_exceptions {
 
 		my $cond = "$clean_stem && lemma = $lemma && target_form = $formcode $homoclause";
 
-		print "$stem $form 0 # { $cond: unset stem; unset target_form; form = $formcode }\n" unless ($form eq 'X');
+		print "$stem $form 0 # { $cond: unset target_form; form = $formcode; step = para_deriv }\n" unless ($form eq 'X');
 		push @exception_stoppers, "0 0 0 0 { $cond: stop = 1 }\n" if ($exctype eq '*');
 	}
 	close(E);
@@ -118,7 +118,7 @@ sub gen_rules {
 	my $stem = $1;
 	my $suff = $2;
 
-	my $clause = "stem = $stem && type = $type";
+	my $clause = "step = vormid && stem = $stem && type = $type";
 
 #	$required_forms{$type, $form, $stem}
 #		= "0 0 0 0 { $clause && $clean_stem && !defined(target_form): target_form = $form }\n";
@@ -126,10 +126,10 @@ sub gen_rules {
 
 	print "# $suff# 0 0 { $clause && $clean_stem && target_form = $form"
 		. ($negative ? " && alt_of = $negative " : " && !defined(alt_of)")
-		. ": unset stem; "
+		. ": "
 		. ($negative ? "unset alt_of; " : "")
 		. "unset target_form; "
-		. "form = $form }\n"; 
+		. "form = $form; step = para_deriv }\n"; 
 
 	if (!$negative && $skipnext) {
 		$skipnext = $stem . $form; 
@@ -158,7 +158,7 @@ sub load_form_codes {
 		$codes{$ekicode} = $abbr;
 		$codes{$abbr} = $ekicode;
 		$required_forms{$ekicode}
-			= "0 0 0 0 { defined(stem) && $clean_stem && !defined(target_form): target_form = $ekicode }\n";
+			= "0 0 0 0 { step = vormid && kind = $mode && !defined(target_form): target_form = $ekicode }\n";
 
 #		print "$ekicode -> $fscode, $abbr, $mode\n";
 

@@ -5,3 +5,4 @@ SetLangParser.hs
 *.hi
 sltester
 brtester
+bropt

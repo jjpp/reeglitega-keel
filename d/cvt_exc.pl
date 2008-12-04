@@ -41,6 +41,6 @@ sub rule {
 	my $key = $a . ' ' . $num . ' ' . $g;
 	$count{$key} = 0 unless defined($count{$key});
 	$count{$key} ++;
-	push @rules, [ $key, $count{$key}, "#$a# #$b# 0 0 { type = $num && $precond: stem_transform = $st" ];
+	push @rules, [ $key, $count{$key}, "#$a# #$b# 0 0 { step = tyved && type = $num && $precond: stem_transform = $st" ];
 }
 

@@ -30,60 +30,66 @@
 :class Ö dtslkng
 :class P gbdkptfh
 
-{START} {VERB} 0 0
-{START} {NOOMEN} 0 0
 
- {NOOMEN} mina 0 0 { true: type = 00; stem = a0; lemma = mina }
- {NOOMEN} k'es 0 0 { true: type = 00; stem = a0; lemma = k'es }
- {NOOMEN} vallatu 0 0 { true: type = 01; stem = a0; lemma = vallatu }
- {NOOMEN} õpik 0 0 { true: type = 02; stem = a0 }
- {NOOMEN} 'andur 0 0 { true: type = 02; stem = a0 }
- {NOOMEN} pagas 0 0 { true: type = 02; stem = a0 }
- {NOOMEN} vaher 0 0 { true: type = 03; stem = an }
- {NOOMEN} ase 0 0 { true: type = 04; stem = a0 }
-{NOOMEN} süda 0 0 { true: type = 04; stem = a0; lemma = süda }
- {NOOMEN} liige 0 0 { true: type = 05; stem = an }
- {NOOMEN} mõte 0 0 { true: type = 06; stem = an }
- {NOOMEN} perse 0 0 { true: type = 06; stem = an }
- {NOOMEN} hammas 0 0 { true: type = 07; stem = an }
- {NOOMEN} taevas 0 0 { true: type = 07; stem = an }
- {NOOMEN} tütar 0 0 { true: type = 08; stem = an }
- {NOOMEN} katus 0 0 { true: type = 09; stem = a0 }
- {NOOMEN} soolane 0 0 { true: type = 10; stem = a0 }
- {NOOMEN} harjutus 0 0 { true: type = 11; stem = a0 }
- {NOOMEN} oluline 0 0 { true: type = 12; stem = a0 }
- {NOOMEN} s'uur 0 0 { true: type = 13; stem = at }
- {NOOMEN} 'uus 0 0 { true: type = 14; stem = at }
- {NOOMEN} käsi 0 0 { true: type = 15; stem = at }
- {NOOMEN} kõne 0 0 { true: type = 16; stem = a0 }
- {NOOMEN} saba 0 0 { true: type = 17; stem = a0 }
- {NOOMEN} sõda 0 0 { true: type = 18; stem = at }
- {NOOMEN} seminar 0 0 { true: type = 19; stem = a0 }
- {NOOMEN} nimi 0 0 { true: type = 20; stem = a0 }
- {NOOMEN} lumi 0 0 { true: type = 20; stem = a0 }
- {NOOMEN} jõgi 0 0 { true: type = 21; stem = at }
- {NOOMEN} s'epp 0 0 { true: type = 22; stem = at }
- {NOOMEN} m'ets 0 0 { true: type = 22; stem = at }
- {NOOMEN} h'ein 0 0 { true: type = 23; stem = at }
- {NOOMEN} padi 0 0 { true: type = 24; stem = an }
- {NOOMEN} õnnel'ik 0 0 { true: type = 25; stem = at }
- {NOOMEN} id'ee 0 0 { true: type = 26; stem = a0 }
- {NOOMEN} s'uu 0 0 { true: type = 26; stem = a0; lemma = s'uu }
- {NOOMEN} p'uu 0 0 { true: type = 26; stem = a0; lemma = p'uu }
- {NOOMEN} h'ea 0 0 { true: type = 26; stem = a0; lemma = h'ea }
+{START} {VERB} 0 0 { true: kind = verb; step = lemma_valik }
+{START} {NOOMEN} 0 0 { true: kind = noomen; step = lemma_valik } 
+
+ {NOOMEN} mina 0 0 { step = lemma_valik: type = 00; lemma = mina; step = vaike_tyvi }
+ {NOOMEN} k'es 0 0 { step = lemma_valik: type = 00; lemma = k'es; step = vaike_tyvi }
+ {NOOMEN} vallatu 0 0 { step = lemma_valik: type = 01; lemma = vallatu; step = vaike_tyvi }
+ {NOOMEN} õpik 0 0 { step = lemma_valik: type = 02; step = vaike_tyvi }
+ {NOOMEN} 'andur 0 0 { step = lemma_valik: type = 02; step = vaike_tyvi }
+ {NOOMEN} pagas 0 0 { step = lemma_valik: type = 02; step = vaike_tyvi }
+ {NOOMEN} vaher 0 0 { step = lemma_valik: type = 03; step = vaike_tyvi }
+ {NOOMEN} ase 0 0 { step = lemma_valik: type = 04; step = vaike_tyvi }
+ {NOOMEN} süda 0 0 { step = lemma_valik: type = 04; lemma = süda; step = vaike_tyvi }
+ {NOOMEN} liige 0 0 { step = lemma_valik: type = 05; step = vaike_tyvi }
+ {NOOMEN} mõte 0 0 { step = lemma_valik: type = 06; step = vaike_tyvi }
+ {NOOMEN} perse 0 0 { step = lemma_valik: type = 06; step = vaike_tyvi }
+ {NOOMEN} hammas 0 0 { step = lemma_valik: type = 07; step = vaike_tyvi }
+ {NOOMEN} taevas 0 0 { step = lemma_valik: type = 07; step = vaike_tyvi }
+ {NOOMEN} tütar 0 0 { step = lemma_valik: type = 08; step = vaike_tyvi }
+ {NOOMEN} katus 0 0 { step = lemma_valik: type = 09; step = vaike_tyvi }
+ {NOOMEN} soolane 0 0 { step = lemma_valik: type = 10; step = vaike_tyvi }
+ {NOOMEN} harjutus 0 0 { step = lemma_valik: type = 11; step = vaike_tyvi }
+ {NOOMEN} oluline 0 0 { step = lemma_valik: type = 12; step = vaike_tyvi }
+ {NOOMEN} s'uur 0 0 { step = lemma_valik: type = 13; step = vaike_tyvi }
+ {NOOMEN} 'uus 0 0 { step = lemma_valik: type = 14; step = vaike_tyvi }
+ {NOOMEN} käsi 0 0 { step = lemma_valik: type = 15; step = vaike_tyvi }
+ {NOOMEN} kõne 0 0 { step = lemma_valik: type = 16; step = vaike_tyvi }
+ {NOOMEN} saba 0 0 { step = lemma_valik: type = 17; step = vaike_tyvi }
+ {NOOMEN} sõda 0 0 { step = lemma_valik: type = 18; step = vaike_tyvi }
+ {NOOMEN} seminar 0 0 { step = lemma_valik: type = 19; step = vaike_tyvi }
+ {NOOMEN} nimi 0 0 { step = lemma_valik: type = 20; step = vaike_tyvi }
+ {NOOMEN} lumi 0 0 { step = lemma_valik: type = 20; step = vaike_tyvi }
+ {NOOMEN} jõgi 0 0 { step = lemma_valik: type = 21; step = vaike_tyvi }
+ {NOOMEN} s'epp 0 0 { step = lemma_valik: type = 22; step = vaike_tyvi }
+ {NOOMEN} p'aar 0 0 { step = lemma_valik: type = 22; lemma = p'aar; step = vaike_tyvi }
+ {NOOMEN} k'äär 0 0 { step = lemma_valik: type = 22; lemma = k'äär; step = vaike_tyvi }
+ {NOOMEN} m'ets 0 0 { step = lemma_valik: type = 22; step = vaike_tyvi }
+ {NOOMEN} h'ein 0 0 { step = lemma_valik: type = 23; step = vaike_tyvi }
+ {NOOMEN} padi 0 0 { step = lemma_valik: type = 24; lemma = padi; step = vaike_tyvi }
+ {NOOMEN} õnnel'ik 0 0 { step = lemma_valik: type = 25; step = vaike_tyvi }
+ {NOOMEN} id'ee 0 0 { step = lemma_valik: type = 26; step = vaike_tyvi }
+ {NOOMEN} s'uu 0 0 { step = lemma_valik: type = 26; lemma = s'uu; step = vaike_tyvi }
+ {NOOMEN} p'uu 0 0 { step = lemma_valik: type = 26; lemma = p'uu; step = vaike_tyvi }
+ {NOOMEN} h'ea 0 0 { step = lemma_valik: type = 26; lemma = h'ea; step = vaike_tyvi }
  
- {VERB} ela 0 0 { true: type = 27; stem = a0 }
- {VERB} l'eppi 0 0 { true: type = 28; stem = at }
- {VERB} h'üppa 0 0 { true: type = 29; stem = at }
- {VERB} r'iidle 0 0 { true: type = 30; stem = at }
- {VERB} rabele 0 0 { true: type = 31; stem = a0 }
- {VERB} s'eis 0 0 { true: type = 32; stem = at }
- {VERB} n'aer 0 0 { true: type = 33; stem = at }
- {VERB} s'ööt 0 0 { true: type = 34; stem = at }
- {VERB} n'ut 0 0 { true: type = 35; stem = at }
- {VERB} tule 0 0 { true: type = 36; stem = an }
- {VERB} v'õi 0 0 { true: type = 37; stem = at }
- {VERB} s'öö 0 0 { true: type = 38; stem = at }
+ {VERB} ela 0 0 { step = lemma_valik: type = 27; step = vaike_tyvi }
+ {VERB} l'eppi 0 0 { step = lemma_valik: type = 28; step = vaike_tyvi }
+ {VERB} j'oo 0 0 { step = lemma_valik: type = 28; step = vaike_tyvi; lemma = j'oo }
+ {VERB} h'üppa 0 0 { step = lemma_valik: type = 29; step = vaike_tyvi }
+ {VERB} r'iidle 0 0 { step = lemma_valik: type = 30; step = vaike_tyvi }
+ {VERB} rabele 0 0 { step = lemma_valik: type = 31; step = vaike_tyvi }
+ {VERB} s'eis 0 0 { step = lemma_valik: type = 32; step = vaike_tyvi }
+ {VERB} n'aer 0 0 { step = lemma_valik: type = 33; step = vaike_tyvi }
+ {VERB} s'ööt 0 0 { step = lemma_valik: type = 34; step = vaike_tyvi }
+ {VERB} n'ut 0 0 { step = lemma_valik: type = 35; step = vaike_tyvi }
+ {VERB} tule 0 0 { step = lemma_valik: type = 36; step = vaike_tyvi }
+ {VERB} v'õi 0 0 { step = lemma_valik: type = 37; step = vaike_tyvi }
+ {VERB} s'öö 0 0 { step = lemma_valik: type = 38; step = vaike_tyvi; lemma = s'öö }
+
+:include d/lemmad.r
 
 
 :include d/stemguide.r
@@ -97,7 +103,7 @@
 :include d/erand_ort1.r
 :include d/erand_ort2.r
 
-0 0 0 0 { stem_transform = preexc: stem_transform = prerule; stop = 1 }
+0 0 0 0 { step = tyved && stem_transform = preexc: stem_transform = prerule; stop = 1 }
 
 :include d/reegel_0g.r
 :include d/reegel_g0.r
@@ -117,3 +123,16 @@
 :include degrees.r
 
 :include d/vormid.r
+
+0 0 0 0 { step = para_deriv: step = liitsona } 
+0 0 0 0 { step = liitsona: step = giki }
+
+
+0 0 0 0 { step = giki: step = lopp } 
+0 gi W # { step = giki: step = lopp; stop = 1 }
+0 gi M # { step = giki: step = lopp; stop = 1 }
+0 gi j # { step = giki: step = lopp; stop = 1 }
+0 ki 0 # { step = giki: step = lopp; stop = 1 }
+
+# 0 0 0 { step = lopp: nop } { step = lopp: step = out }
+

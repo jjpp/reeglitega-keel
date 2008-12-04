@@ -1,4 +1,4 @@
-all: sltester brtester
+all: sltester brtester bropt
 
 clean:
 	$(RM) -f *.o *.hi SetLangParser.hs SetLangLexer.hs
@@ -17,4 +17,7 @@ sltester: Main.hs $(SETLANG)
 
 brtester: BRMain.hs $(SETLANG) BaseRule.hs RuleParser.hs
 	$(GHC) --make -o brtester BRMain.hs
+
+bropt: BROptimizer.hs $(SETLANG) BaseRule.hs RuleParser.hs
+	$(GHC) --make -o bropt BROptimizer.hs
 

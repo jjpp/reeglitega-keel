@@ -26,6 +26,7 @@ tokens :-
 	"declare"	{ \s -> TDeclare }
 	"unset"		{ \s -> TUnset }
 	[^$white\(\)\:\;\,\=\!\&\|\^]+	{ \s -> TString s }
+	"žšžšžš"	;
 
 {
 data Token 

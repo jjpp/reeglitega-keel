@@ -16,10 +16,12 @@ while (<>) {
 	print " Tüveteisenduse reeglid tüübi $num jaoks:\n";
 
 	if ($allexc) {
-		print "0 0 0 0 { type = $num && stem_transform = postexc: stem_transform = postrule; stop = 1 }\n";
+		print "0 0 0 0 { step = tyved && type = $num && stem_transform = postexc: stem_transform = postrule; stop = 1 }\n";
 	}
 
 	my $p = undef;
+
+	print "0 0 0 0 { step = vaike_tyvi && type = $num: step = tyved; stem = $w[0] }\n";
 
 	my ($exc, $ort1, $ort2, $unused);
 
@@ -46,15 +48,15 @@ while (<>) {
 
 		if (defined($p)) {
 			my $g = get_grammar($p, $w);
-			print "0 0 0 0 { type = $num && stem = $p && (!defined(stem_transform)) && (!defined(form)) && (!defined(target_form)): "
+			print "0 0 0 0 { step = tyved && type = $num && stem = $p && (!defined(stem_transform)) && (!defined(form)) && (!defined(target_form)): "
 				. "stem_transform = preexc; stem_grammar = $g; target_stem = $w }\n";
 			if ($exc) {
-				print "0 0 0 0 { type = $num && stem_grammar = $g && stem_transform = postexc: stem_transform = postrule; stop = 1 }\n";
+				print "0 0 0 0 { step = tyved && type = $num && stem_grammar = $g && stem_transform = postexc: stem_transform = postrule; stop = 1 }\n";
 			}
 
 			if ($ort1 || $ort2) {
 				my $ort = ($ort1 ? "ort1" : "ort2");
-				print "0 0 0 0 { type = $num && stem_grammar = $g && target_stem = $w && stem_transform = postrule: "
+				print "0 0 0 0 { step = tyved && type = $num && stem_grammar = $g && target_stem = $w && stem_transform = postrule: "
 					. "stem_grammar = $ort; stem_transform = preexc; stop = 1 }\n";
 			}
 		}
@@ -68,8 +70,10 @@ while (<>) {
 
 
 for (keys %stems) {
-	print "0 0 0 0 { target_stem = $_ && stem_transform = postrule: unset stem_transform; unset stem_grammar; unset target_stem; stem = $_ }\n";
+	print "0 0 0 0 { step = tyved && target_stem = $_ && stem_transform = postrule: unset stem_transform; unset stem_grammar; unset target_stem; stem = $_ }\n";
 }
+
+print "0 0 0 0 { step = tyved && (!defined(target_stem)) && (!defined(stem_transform)) && defined(stem): step = vormid }\n";
 
 sub get_grammar {
 	my ($a, $b) = @_;
