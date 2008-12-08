@@ -16,7 +16,9 @@ type Classes = Map Char SetOfChars
 
 data BaseRule = BaseRule { 
 				upper, lower, precond, postcond :: Str, 
-				matchExpr, nomatchExpr :: Expression }
+				matchExpr, nomatchExpr :: Expression,
+				ruleName :: String, ruleId :: Int
+			}
 	deriving (Eq, Show, Read)
 
 uppercond rule = (uppercond' rule) ++ (postcond rule)

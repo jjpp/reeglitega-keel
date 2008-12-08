@@ -80,7 +80,7 @@ sub process_exceptions {
 		my $stem = $lemma;
 		my $homoclause = '';
 		if ($homocode ne '-') {
-			$homoclause = '&& stem = $homocode'
+			$homoclause = '&& stem = ' . $homocode
 		}
 
 		my $cond = "$clean_stem && lemma = $lemma && target_form = $formcode $homoclause";

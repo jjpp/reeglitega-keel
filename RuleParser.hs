@@ -158,8 +158,9 @@ singlerule = do
 		cond <- try (extracondition nopExpression)
 		elseCond <- try (extracondition noExpression)
 		state <- getState
+		pos <- getPosition
 		updateState (\x -> x { 
-			rules = ((BaseRule (unzero u) (unzero l) (unzero lc) (unzero rc) cond elseCond)
+			rules = ((BaseRule (unzero u) (unzero l) (unzero lc) (unzero rc) cond elseCond (show pos) ((length $ rules state) + 1))
 				: (rules state)) })
 		return 1
 		<?> "rule"
