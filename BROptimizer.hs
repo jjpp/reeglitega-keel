@@ -24,9 +24,13 @@ main = do { 	putStrLn $ "Reegleid: " ++ (show $ length rs);
 			(map (\(k, v) -> (k, S.toList v)) $ M.toList varsAndStates));
 		putStrLn $ "Statespace: " ++ (show $ foldr (*) 1 $ map ((\a -> toInteger a + 1) . S.size . snd) $ M.toList varsAndStates);
 		putStrLn $ "Rulegraph:\n" ++ (concatMap
-			(\(node, key, keys) -> " " ++ node ++ " (" 
+			(\(node, key, keys) -> " " ++ (show key) ++ "/" ++ node ++ " (" 
 				++ (show $ length keys) ++ "): "
 				++ (show $ take 20 keys) ++ "\n") ruleGraph);
+		putStrLn $ "digraph {\n" ++ (concatMap
+			(\(node, key, keys) -> concatMap (\target -> (show key) ++ " -> " ++ (show target) ++ "\n") keys) ruleGraph)
+			++ "}\n";
+
 				
 	} where 
 		ps = case parseRuleFile "eki.r" of
@@ -47,7 +51,18 @@ genRuleGraph :: [BaseRule] -> [(String, Int, [Int])]
 genRuleGraph rs = map (genPossibleTransitions rs) rs
 genPossibleTransitions rs r = (ruleName r, ruleId r, idsOfMatchingRules r rs)
 idsOfMatchingRules r rs = map ruleId $ filter (\target -> isPossibleTransition r target) rs
-isPossibleTransition s t =  False
+isPossibleTransition s t = or $ [ isPossibleTrans' action cond | action <- concat [ posAction, negAction ], cond <- [ posCond, negCond ] ]
+	where
+		negAction = nonFalseActionOf (nomatchExpr s)
+		posAction = nonFalseActionOf (matchExpr s)
+		negCond = condOf (nomatchExpr t)
+		posCond = condOf (matchExpr t)
+
+nonFalseActionOf c = if (condOf c /= CFalse) then [actionOf c] else []
+
+-- isPossibleTrans' as c = trace ((show as) ++ "; " ++ (show c) ++ " -> " ++ (show $ possibleEval c st') ++ "\n") 
+isPossibleTrans' as c = possibleEval c st' 
+	where st' = (foldr emptyRun initialState as)
 
 getVarsAndStates rs = foldr updateVarsAndStates M.empty rs 
 updateVarsAndStates :: BaseRule -> Map String Domain -> Map String Domain

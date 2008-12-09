@@ -89,7 +89,7 @@
  {VERB} v'õi 0 0 { step = lemma_valik: type = 37; step = vaike_tyvi }
  {VERB} s'öö 0 0 { step = lemma_valik: type = 38; step = vaike_tyvi; lemma = s'öö }
 
-:include d/lemmad.r
+ :include d/lemmad.r
 
 
 :include d/stemguide.r
