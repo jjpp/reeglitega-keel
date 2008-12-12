@@ -2,10 +2,11 @@ module Main where
 
 import BaseRule
 import RuleParser
+import BRApprox
 import Control.Monad
 import Debug.Trace
 import SetLang
-import Data.Set as S (toList, empty, fromList, union, size)
+import Data.Set as S (toList, empty, fromList, union, size, singleton)
 import Data.Map as M hiding (map, filter)
 import Data.Graph
 
@@ -23,13 +24,15 @@ main = do { 	putStrLn $ "Reegleid: " ++ (show $ length rs);
 				++ (show $ take 30 v) ++ "\n")
 			(map (\(k, v) -> (k, S.toList v)) $ M.toList varsAndStates));
 		putStrLn $ "Statespace: " ++ (show $ foldr (*) 1 $ map ((\a -> toInteger a + 1) . S.size . snd) $ M.toList varsAndStates);
-		putStrLn $ "Rulegraph:\n" ++ (concatMap
+{-		putStrLn $ "Rulegraph:\n" ++ (concatMap
 			(\(node, key, keys) -> " " ++ (show key) ++ "/" ++ node ++ " (" 
 				++ (show $ length keys) ++ "): "
-				++ (show $ take 20 keys) ++ "\n") ruleGraph);
-		putStrLn $ "digraph {\n" ++ (concatMap
-			(\(node, key, keys) -> concatMap (\target -> (show key) ++ " -> " ++ (show target) ++ "\n") keys) ruleGraph)
-			++ "}\n";
+				++ (show $ take 20 keys) ++ "\n") ruleGraph); -}
+		putStrLn $ "fs = " ++ (show fs) ++ "\n";
+		putStrLn $ "showfs = " ++ (showfs fs) ++ "\n";
+--		putStrLn $ "digraph {\n" ++ (concatMap
+--			(\(node, key, keys) -> concatMap (\target -> (show key) ++ " -> " ++ (show target) ++ "\n") keys) ruleGraph)
+--			++ "}\n";
 
 				
 	} where 
@@ -45,6 +48,23 @@ main = do { 	putStrLn $ "Reegleid: " ++ (show $ length rs);
 		optOrder = reverse $ topSort stepg
 		varsAndStates = getVarsAndStates rs
 		ruleGraph = genRuleGraph rs
+		initFS = FullState {
+			stateById = M.singleton 0 $ initialExtState startWord,
+			stateByVS = M.singleton initialState 0,
+			updatedStates = S.singleton 0 }
+		ruleSet = RS isIn varsAndStates rs
+		fs = extCalc ruleSet initFS
+
+extIterate' rs fs = tracefs $ extIterate rs fs
+
+extCalc rs fs = if S.size (updatedStates fs') == 0 
+			then fs'
+			else extCalc rs fs'
+		where fs' = extIterate' rs fs
+
+tracefs fs = trace (showfs fs) fs
+showfs fs = "\n\n----\n" 
+	++ (concatMap (\(k, v) -> (show k) ++ ": " ++ (show v) ++ "\n") $ M.toList $ stateById fs)
 
 
 genRuleGraph :: [BaseRule] -> [(String, Int, [Int])]

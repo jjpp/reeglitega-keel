@@ -39,9 +39,9 @@
  {NOOMEN} vallatu 0 0 { step = lemma_valik: type = 01; lemma = vallatu; step = vaike_tyvi }
  {NOOMEN} õpik 0 0 { step = lemma_valik: type = 02; step = vaike_tyvi }
  {NOOMEN} 'andur 0 0 { step = lemma_valik: type = 02; step = vaike_tyvi }
- {NOOMEN} pagas 0 0 { step = lemma_valik: type = 02; step = vaike_tyvi }
- {NOOMEN} vaher 0 0 { step = lemma_valik: type = 03; step = vaike_tyvi }
- {NOOMEN} ase 0 0 { step = lemma_valik: type = 04; step = vaike_tyvi }
+ {NOOMEN} pagas 0 0 { step = lemma_valik: type = 02; step = vaike_tyvi; lemma = pagas }
+ {NOOMEN} vaher 0 0 { step = lemma_valik: type = 03; step = vaike_tyvi; lemma = vaher }
+ {NOOMEN} ase 0 0 { step = lemma_valik: type = 04; step = vaike_tyvi; lemma = ase }
  {NOOMEN} süda 0 0 { step = lemma_valik: type = 04; lemma = süda; step = vaike_tyvi }
  {NOOMEN} liige 0 0 { step = lemma_valik: type = 05; step = vaike_tyvi }
  {NOOMEN} mõte 0 0 { step = lemma_valik: type = 06; step = vaike_tyvi }
@@ -89,7 +89,7 @@
  {VERB} v'õi 0 0 { step = lemma_valik: type = 37; step = vaike_tyvi }
  {VERB} s'öö 0 0 { step = lemma_valik: type = 38; step = vaike_tyvi; lemma = s'öö }
 
- :include d/lemmad.r
+:include d/lemmad.r
 
 
 :include d/stemguide.r
@@ -129,10 +129,10 @@
 
 
 0 0 0 0 { step = giki: step = lopp } 
-0 gi W # { step = giki: step = lopp; stop = 1 }
-0 gi M # { step = giki: step = lopp; stop = 1 }
-0 gi j # { step = giki: step = lopp; stop = 1 }
-0 ki 0 # { step = giki: step = lopp; stop = 1 }
+0 gi W # { step = giki: step = lopp; stop = 1; giki = 1 }
+0 gi M # { step = giki: step = lopp; stop = 1; giki = 1 }
+0 gi j # { step = giki: step = lopp; stop = 1; giki = 1 }
+0 ki 0 # { step = giki: step = lopp; stop = 1; giki = 1 }
 
 # 0 0 0 { step = lopp: nop } { step = lopp: step = out }
 
