@@ -28,8 +28,8 @@ main = do { 	putStrLn $ "Reegleid: " ++ (show $ length rs);
 			(\(node, key, keys) -> " " ++ (show key) ++ "/" ++ node ++ " (" 
 				++ (show $ length keys) ++ "): "
 				++ (show $ take 20 keys) ++ "\n") ruleGraph); -}
-		putStrLn $ "fs = " ++ (show fs) ++ "\n";
-		putStrLn $ "showfs = " ++ (showfs fs) ++ "\n";
+--		putStrLn $ "fs = " ++ (show fs) ++ "\n";
+--		putStrLn $ "showfs = " ++ (showfs fs) ++ "\n";
 --		putStrLn $ "digraph {\n" ++ (concatMap
 --			(\(node, key, keys) -> concatMap (\target -> (show key) ++ " -> " ++ (show target) ++ "\n") keys) ruleGraph)
 --			++ "}\n";
