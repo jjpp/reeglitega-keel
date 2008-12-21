@@ -124,7 +124,11 @@ sub gen_rules {
 #		= "0 0 0 0 { $clause && $clean_stem && !defined(target_form): target_form = $form }\n";
 
 
-	print "# $suff# 0 0 { $clause && $clean_stem && target_form = $form"
+	if ($suff eq '') {
+		$suff = '0';
+	}
+
+	print "0 $suff 0 # { $clause && $clean_stem && target_form = $form"
 		. ($negative ? " && alt_of = $negative " : " && !defined(alt_of)")
 		. ": "
 		. ($negative ? "unset alt_of; " : "")

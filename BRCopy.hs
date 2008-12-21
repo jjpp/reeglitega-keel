@@ -1,4 +1,4 @@
-module Main where
+module BRCopy where
 
 import BaseRule
 import RuleParser
@@ -8,17 +8,16 @@ import Data.Set as S
 import System.IO.UTF8 as UTF8
 import System (getArgs)
 
-main = do
+copyRules f = do
 	args <- getArgs
-	main' $ if length args > 0 then args !! 0 else "/dev/stdin"
+	copyRules' f $ if length args > 0 then args !! 0 else "/dev/stdin"
 
-
-main' x = do {
+copyRules' f x = do {
 		UTF8.putStrLn $ (showClasses $ classes ps);
 		UTF8.putStrLn $ ":start " ++ (unescape reversedNT $ start ps) ++ "\n";
 		showRules reversedNT $ rs
 	} where 
-		ps = case parseRuleFile x of
+		ps = f $ case parseRuleFile x of
 			Left err -> error (show err)
 			Right s -> (fst s)
 		reversedNT = M.fromList . (Prelude.map swap) . M.toList $ nonterminals ps

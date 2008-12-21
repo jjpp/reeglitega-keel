@@ -22,5 +22,5 @@ brtester: BRMain.hs $(SETLANG) $(BASERULE)
 bropt: BROptimizer.hs $(SETLANG) $(BASERULE) BRApprox.hs
 	$(GHC) --make -o bropt BROptimizer.hs
 
-brcp: BRCopy.hs $(SETLANG) $(BASERULE) BRCopy.hs
-	$(GHC) --make -o brcp BRCopy.hs
+brcp: BRCp.hs BRCopy.hs $(SETLANG) $(BASERULE)
+	$(GHC) --make -o brcp BRCp.hs
