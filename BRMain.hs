@@ -12,7 +12,7 @@ main = do { 	putStrLn $ "Reegleid: " ++ (show $ length rs);
 		putStrLn $ showstates "\n" x;
 		putStrLn $ show (nonterminals ps)
 	} where 
-		ps = case parseRuleFile "eki.r" of
+		ps = case parseRuleFile "/dev/stdin" of
 			Left err -> error (show err)
 			Right s -> (fst s)
 		rs = reverse $ rules ps

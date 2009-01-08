@@ -43,6 +43,6 @@ sub rule {
 	$count{$key} ++;
 	if ($a eq '') { $a = '0' }
 	if ($b eq '') { $b = '0' }
-	push @rules, [ $key, $count{$key}, "$a $b # # { step = tyved && type = $num && $precond: stem_transform = $st" ];
+	push @rules, [ $key, $count{$key}, "$a $b # # { step = tyved && type = $num && $precond: stem_transform = $st; erand = 1" ];
 }
 

@@ -50,7 +50,7 @@
  {NOOMEN} taevas 0 0 { step = lemma_valik: type = 07; step = vaike_tyvi }
  {NOOMEN} tütar 0 0 { step = lemma_valik: type = 08; step = vaike_tyvi }
  {NOOMEN} katus 0 0 { step = lemma_valik: type = 09; step = vaike_tyvi }
- {NOOMEN} soolane 0 0 { step = lemma_valik: type = 10; step = vaike_tyvi }
+{NOOMEN} soolane 0 0 { step = lemma_valik: type = 10; muutus = knd; step = vaike_tyvi; lemma = soolane; kind = A }
  {NOOMEN} harjutus 0 0 { step = lemma_valik: type = 11; step = vaike_tyvi }
  {NOOMEN} oluline 0 0 { step = lemma_valik: type = 12; step = vaike_tyvi }
  {NOOMEN} s'uur 0 0 { step = lemma_valik: type = 13; step = vaike_tyvi }
@@ -89,7 +89,7 @@
  {VERB} v'õi 0 0 { step = lemma_valik: type = 37; step = vaike_tyvi }
  {VERB} s'öö 0 0 { step = lemma_valik: type = 38; step = vaike_tyvi; lemma = s'öö }
 
-:include d/lemmad.r
+ :include d/lemmad.r
 
 
 :include d/stemguide.r
@@ -134,5 +134,5 @@
 0 gi j # { step = giki: step = lopp; stop = 1; giki = 1 }
 0 ki 0 # { step = giki: step = lopp; stop = 1; giki = 1 }
 
-# 0 0 0 { step = lopp: nop } { step = lopp: step = out }
+# 0 0 0 { step = lopp: nop; erand = 1 } { step = lopp: step = out }
 

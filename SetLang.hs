@@ -13,7 +13,7 @@ type AllVars = Map.Map Name Domain
 type VarState = Map.Map Name Value
 
 
-data Expression = Expression Cond [Statement] deriving (Show, Read, Eq)
+data Expression = Expression Cond [Statement] deriving (Show, Read, Eq, Ord)
 
 condOf (Expression c _) = c
 actionOf (Expression _ as) = as
@@ -22,7 +22,7 @@ data Statement = DeclareVar Name Domain
                | SetVar Name Value
 	       | UnsetVar Name
 	       | Nop
-	deriving (Show, Read, Eq)
+	deriving (Show, Read, Eq, Ord)
 
 -- apply :: Statement -> 
 
@@ -39,7 +39,7 @@ data Cond = In Name Domain
 --	  | GtEVars Name Name
 	  | CFalse
 	  | CTrue
-	deriving (Show, Read, Eq)
+	deriving (Show, Read, Eq, Ord)
 
 eval :: Cond -> VarState -> Bool
 eval (Is var value) vars = case (Map.lookup var vars) of
@@ -104,5 +104,42 @@ emptyRun (DeclareVar _ _) x = error "declare is unimplemented"
 emptyRun (SetVar var value) state = Map.alter (\x -> Just value) var state
 emptyRun (UnsetVar var) state = Map.alter (\x -> Just undefinedValue) var state
 emptyRun (Nop) state = state
+
+data TriState = TSFalse | TSDN | TSTrue 
+	deriving (Ord, Show, Eq)
+
+tsand TSTrue TSTrue = TSTrue
+tsand TSTrue TSDN = TSTrue
+tsand TSDN TSTrue = TSTrue
+tsand _ TSFalse = TSFalse
+tsand TSFalse _ = TSFalse
+tsand TSDN TSDN = TSDN
+
+tsor TSFalse TSFalse = TSFalse
+tsor TSFalse TSDN = TSDN
+tsor TSDN TSFalse = TSDN
+tsor _ TSTrue = TSTrue
+tsor TSTrue _ = TSTrue
+tsor TSDN TSDN = TSDN
+
+
+openEval :: Cond -> VarState -> TriState
+openEval (Is var value) vars = case (Map.lookup var vars) of
+				Just x -> if x == value then TSTrue else TSFalse
+				Nothing -> TSDN
+openEval (In var values) vars = case (Map.lookup var vars) of
+				Just x -> if x `Set.member` values then TSTrue else TSDN
+				Nothing -> TSDN
+openEval (Defined var) vars = if var `Map.member` vars then TSTrue else TSDN
+openEval (Not cond) vars = case openEval cond vars of
+				TSTrue -> TSFalse
+				TSFalse -> TSFalse
+				TSDN -> TSDN
+openEval (And c1 c2) vars = (openEval c1 vars) `tsand` (openEval c2 vars)
+openEval (Or c1 c2) vars = (openEval c1 vars) `tsor` (openEval c2 vars)
+-- openEval (Xor c1 c2) vars = (openEval c1 vars) /= (openEval c2 vars)
+openEval CFalse _ = TSFalse
+openEval CTrue _ = TSTrue
+
 
 

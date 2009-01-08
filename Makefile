@@ -1,11 +1,11 @@
-all: sltester brtester bropt brcp
+all: sltester brtester bropt brcp brcond brst bror
 
 clean:
 	$(RM) -f *.o *.hi SetLangParser.hs SetLangLexer.hs
 
 SETLANG=SetLangParser.hs SetLangLexer.hs SetLang.hs
 BASERULE=BaseRule.hs RuleParser.hs
-GHC=ghc -O3
+GHC=ghc -O2 -funfolding-use-threshold=16
 
 SetLangLexer.hs: SetLangLexer.x
 	alex SetLangLexer.x -o SetLangLexer.hs
@@ -19,8 +19,17 @@ sltester: Main.hs $(SETLANG)
 brtester: BRMain.hs $(SETLANG) $(BASERULE)
 	$(GHC) --make -o brtester BRMain.hs
 
+brst: BRSet.hs $(SETLANG) $(BASERULE)
+	$(GHC) --make -o brst BRSet.hs
+
 bropt: BROptimizer.hs $(SETLANG) $(BASERULE) BRApprox.hs
 	$(GHC) --make -o bropt BROptimizer.hs
 
 brcp: BRCp.hs BRCopy.hs $(SETLANG) $(BASERULE)
 	$(GHC) --make -o brcp BRCp.hs
+
+brcond: BRByCond.hs BRCopy.hs $(SETLANG) $(BASERULE)
+	$(GHC) --make -o brcond BRByCond.hs
+
+bror: BROptRule.hs BRCopy.hs $(SETLANG) $(BASERULE)
+	$(GHC) --make -o bror BROptRule.hs

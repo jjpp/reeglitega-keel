@@ -3,16 +3,25 @@
 use strict;
 
 my %codes;
-my $mode = 'other';
+my $mode = '';
 my $type = 'XX';
 my $clean_stem = 'step = vormid && (!defined(form))';
 my @stoppers = ();
 my @exception_stoppers = ();
 my %required_forms = ();
 
+my %modetab = (
+	'noomen' => 'knd',
+	'verb' => 'prd',
+	'varia' => 'prd',
+);
+
+print "0 0 0 0 { step = vormid && !defined(substep): substep = vormierandid }\n";
+
 load_form_codes(shift @ARGV);
 process_exceptions(shift @ARGV);
 output_exception_stoppers();
+print "0 0 0 0 { step = vormid && substep = vormierandid: substep = vormireeglid }\n";
 process_rules(shift @ARGV);
 
 
@@ -83,9 +92,9 @@ sub process_exceptions {
 			$homoclause = '&& stem = ' . $homocode
 		}
 
-		my $cond = "$clean_stem && lemma = $lemma && target_form = $formcode $homoclause";
+		my $cond = "$clean_stem && substep = vormierandid && lemma = $lemma && target_form = $formcode $homoclause";
 
-		print "$stem $form 0 # { $cond: unset target_form; form = $formcode; step = para_deriv }\n" unless ($form eq 'X');
+		print "$stem $form 0 # { $cond: unset target_form; form = $formcode; step = para_deriv; unset substep; erand = 1 }\n" unless ($form eq 'X');
 		push @exception_stoppers, "0 0 0 0 { $cond: stop = 1 }\n" if ($exctype eq '*');
 	}
 	close(E);
@@ -118,7 +127,7 @@ sub gen_rules {
 	my $stem = $1;
 	my $suff = $2;
 
-	my $clause = "step = vormid && stem = $stem && type = $type";
+	my $clause = "stem = $stem && type = $type";
 
 #	$required_forms{$type, $form, $stem}
 #		= "0 0 0 0 { $clause && $clean_stem && !defined(target_form): target_form = $form }\n";
@@ -128,16 +137,16 @@ sub gen_rules {
 		$suff = '0';
 	}
 
-	print "0 $suff 0 # { $clause && $clean_stem && target_form = $form"
+	print "0 $suff 0 # { substep = vormireeglid && $clause && $clean_stem && target_form = $form"
 		. ($negative ? " && alt_of = $negative " : " && !defined(alt_of)")
 		. ": "
 		. ($negative ? "unset alt_of; " : "")
 		. "unset target_form; "
-		. "form = $form; step = para_deriv }\n"; 
+		. "form = $form; step = para_deriv; unset substep }\n"; 
 
 	if (!$negative && $skipnext) {
 		$skipnext = $stem . $form; 
-		push @stoppers, "0 0 0 0 { type = $type && $clean_stem && target_form = $form: alt_of = $skipnext; stop = 1 }\n";
+		push @stoppers, "0 0 0 0 { substep = vormireeglid && type = $type && $clean_stem && target_form = $form: alt_of = $skipnext; stop = 1 }\n";
 	}
 
 	if ($rest) {
@@ -153,7 +162,7 @@ sub load_form_codes {
 		next unless /^[0..9A-Z@-]/;
 
 		if (/^@(.*)$/) {
-			$mode = $1;
+			$mode = $modetab{$1} ? '&& muutus = ' . $modetab{$1} : '';
 			next;
 		}
 
@@ -162,7 +171,7 @@ sub load_form_codes {
 		$codes{$ekicode} = $abbr;
 		$codes{$abbr} = $ekicode;
 		$required_forms{$ekicode}
-			= "0 0 0 0 { step = vormid && kind = $mode && !defined(target_form): target_form = $ekicode }\n";
+			= "0 0 0 0 { step = vormid $mode && !defined(target_form): target_form = $ekicode }\n";
 
 #		print "$ekicode -> $fscode, $abbr, $mode\n";
 

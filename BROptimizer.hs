@@ -6,13 +6,23 @@ import BRApprox
 import Control.Monad
 import Debug.Trace
 import SetLang
-import Data.Set as S (toList, empty, fromList, union, size, singleton)
+import Data.Set as S (toList, empty, fromList, union, size, singleton, insert, Set, member)
 import Data.Map as M hiding (map, filter)
 import Data.Graph
 
 
 data StateNode = S [String] VarState
+type BoxId = [Name]
+data Box = B { bid :: BoxId, brules :: [BaseRule], targets :: S.Set BoxId }
 
+showBox b = showBoxId (bid b) ++ " (" ++ (show $ length $ brules b) ++ ") -> " ++ (show $ map showBoxId $ S.toList $ targets b)
+instance Show Box where
+	show x = showBox x
+
+showBoxId bid = unwords bid
+
+
+boxVars = ["step", "substep", "type", "stem", "target_stem", "stem_transform", "form", "target_form"]
 
 
 main = do { 	putStrLn $ "Reegleid: " ++ (show $ length rs);
@@ -24,6 +34,13 @@ main = do { 	putStrLn $ "Reegleid: " ++ (show $ length rs);
 				++ (show $ take 30 v) ++ "\n")
 			(map (\(k, v) -> (k, S.toList v)) $ M.toList varsAndStates));
 		putStrLn $ "Statespace: " ++ (show $ foldr (*) 1 $ map ((\a -> toInteger a + 1) . S.size . snd) $ M.toList varsAndStates);
+		putStrLn $ "Boxspace: " ++ (show $ foldr (*) 1 
+			$ map ((\a -> toInteger a + 1) . S.size . snd) 
+				$ filter (\(a, b) -> a `elem` boxVars) 
+					$ M.toList varsAndStates);
+		putStrLn $ "Boxen: " ++ (concatMap (\(x, v) -> (show x) ++ " -> " ++ (show $ length v) ++ "\n") boxen);
+		putStrLn $ "boxmap: " ++ (concatMap (\x -> (showBoxId $ bid x) ++ " => " ++ (show $ S.size $ targets x) ++ "\n") boxrels);
+		putStrLn $ "digraph rules {\n" ++ (concatMap boxgraph boxrels) ++ "}\n"; 
 {-		putStrLn $ "Rulegraph:\n" ++ (concatMap
 			(\(node, key, keys) -> " " ++ (show key) ++ "/" ++ node ++ " (" 
 				++ (show $ length keys) ++ "): "
@@ -36,7 +53,7 @@ main = do { 	putStrLn $ "Reegleid: " ++ (show $ length rs);
 
 				
 	} where 
-		ps = case parseRuleFile "eki.r" of
+		ps = case parseRuleFile "/dev/stdin" of
 			Left err -> error (show err)
 			Right s -> (fst s)
 		rs = reverse $ rules ps
@@ -54,6 +71,41 @@ main = do { 	putStrLn $ "Reegleid: " ++ (show $ length rs);
 			updatedStates = S.singleton 0 }
 		ruleSet = RS isIn varsAndStates rs
 		fs = extCalc ruleSet initFS
+		boxen = countBoxen boxVars rs
+		boxrels = getBoxRels $ M.fromList $ map (\(n, r) -> (n, B { bid = n, brules = r, targets = S.empty })) boxen
+
+boxgraph b = concatMap edge $ S.toList $ targets b
+	where edge t = "\"" ++ (showBoxId $ bid b) ++ "\" -> \"" ++ (showBoxId t) ++ "\"\n"
+
+getBoxRels m = map (\x -> x { targets = getTargets (bid x) x }) $ map snd $ M.toList m
+	where
+		getTargets i b = foldr (addTarget i) S.empty $ brules b
+		addTarget i r s = S.insert (calcTarget i r) s
+		calcTarget i r = case (try [] tn) of
+					Just x -> x
+					Nothing -> error ("Nii ei saa olla, et midagi ei ole: " ++ (show tn))
+			where
+				tn = calcTarget' i r
+				try x [] = if M.member x m then Just x else Nothing
+				try x (r:rs) = (try (x ++ [r]) rs) `mplus` (try x rs)
+		calcTarget' i r = filter (\x -> x /= []) $ concatMap (check r) boxVars -- :: [Name] 
+		check r k = filter (\x -> x /= []) $ map (\x -> if x == "UNDEFINED" then "" else k ++ " = " ++ x) v -- :: [Name]
+			where
+				v = if avs /= [] then avs else cvs
+				cvs = condValues k r
+				avs = actionValues k r
+
+countBoxen :: [Name] -> [BaseRule] -> [([Name], [BaseRule])]
+countBoxen vs rs = map rulepair $ S.toList nameSets'
+	where
+		rulepair varstate = ((vs2ns varstate), (applicableRules varstate))
+		applicableRules vs = filter (\r -> ((ev r vs matchExpr) `tsor` (ev r vs nomatchExpr)) /= TSFalse) rs
+		ev r v f = openEval (condOf $ f r) v
+		vs2ns v = map (\(k, v) -> k ++ " = " ++ v) $ M.toList v
+		nameSets' = foldr addNameSet S.empty rs
+		addNameSet r s = S.insert (varState r) s
+		varState r = M.fromList $ [ (k, v) | k <- rvs, v <- condValues k r, v /= "UNDEFINED" ]
+		rvs = reverse vs
 
 extIterate' rs fs = tracefs $ extIterate rs fs
 
@@ -84,16 +136,6 @@ nonFalseActionOf c = if (condOf c /= CFalse) then [actionOf c] else []
 isPossibleTrans' as c = possibleEval c st' 
 	where st' = (foldr emptyRun initialState as)
 
-getVarsAndStates rs = foldr updateVarsAndStates M.empty rs 
-updateVarsAndStates :: BaseRule -> Map String Domain -> Map String Domain
-updateVarsAndStates br m = foldr updateVar m allVars
-	where
-		allVars = uniq $ (condVars br)
-		valueAsList Nothing = S.empty
-		valueAsList (Just x) = x
-		newValue k x = Just ((valueAsList x) `S.union` (S.fromList $ condValues k br))
-		updateVar k m = M.alter (newValue k) k m
-
 
 edgeLabel (node, key, keys) = node
 
@@ -107,58 +149,12 @@ rulesWithTarget step rs = filter (\r -> step `elem` (anyExpr exprTargetStep r)) 
 
 getSteps sl = concatMap (\(a, b) -> (show a) ++ " -> " ++ (show b) ++ "; ") sl
 
-anyExpr :: (MonadPlus m) => (Expression -> m a) -> BaseRule -> m a
-anyExpr f r = (f (matchExpr r)) `mplus` (f (nomatchExpr r))
-
 gs' r = anyExpr exprStepEdge r
 -- gs' r = exprStepEdge (matchExpr r) ++ exprStepEdge (nomatchExpr r) 
--- gs' r = exprTargetStep (matchExpr r) ++ exprTargetStep (nomatchExpr r) 
-
+-- gs' r = exprTargetStep (matchExpr r) ++ exprTargetStep (nomatchExpr r)
 
 exprTargetStep expr = actionValues' "step" expr
 exprCondStep x = condValues' "step" x
-
-condVars' (In var value) = [var]
-condVars' (Is var value) = [var]
-condVars' (Not c) = condVars' c
-condVars' (And c1 c2) = (condVars' c1) ++ (condVars' c2)
-condVars' (Or c1 c2) = (condVars' c1) ++ (condVars' c2)
-condVars' (Xor c1 c2) = (condVars' c1) ++ (condVars' c2)
-condVars' (Defined var) = [var]
-condVars' _ = []
-condVars'' (Expression c _) = condVars' c
-
-condVars br = anyExpr (condVars'') br
-
-condValues' k (In k' values) | k == k' = S.toList values
-condValues' k (Is k' value) | k == k' = [value]
-condValues' k (Not c) = condValues' k c
-condValues' k (And c1 c2) = (condValues' k c1) ++ (condValues' k c2)
-condValues' k (Or c1 c2) = (condValues' k c1) ++ (condValues' k c2)
-condValues' k (Xor c1 c2) = (condValues' k c1) ++ (condValues' k c2)
-condValues' k (Defined k') | k == k' = ["UNDEFINED"]
-condValues' _ _ = []
-
-condValues'' k (Expression c _) = condValues' k c
-condValues k br = anyExpr (condValues'' k) br
-
-
-actionValue' k (SetVar k' value) | k == k' = [value]
-actionValue' k (UnsetVar k') | k == k' = ["UNDEFINED"];
-actionValue' _ _ = []
-
-actionValues' k (Expression _ ss) = concatMap (actionValue' k) ss
-actionValues k br = anyExpr (actionValues' k) br
-
-
-actionVar' (SetVar k _) = [k]
-actionVar' (UnsetVar k) = [k]
-actionVar' (DeclareVar k _) = [k]
-actionVar' _ = []
-
-actionVars' (Expression _ ss) = concatMap actionVar' ss
-actionVars br = anyExpr actionVars' br
-
 
 exprStepEdge expr@(Expression cond _) = 
 	case targets of
@@ -167,11 +163,5 @@ exprStepEdge expr@(Expression cond _) =
 	where
 		sources = exprCondStep cond
 		targets = exprTargetStep expr
-
-
-uniqPrepend :: (Eq a) => [a] -> [a] -> [a]
-uniqPrepend old new = foldl (\as -> \b -> if b `elem` as then as else b:as) old new
-uniq xs = uniqPrepend [] xs
-
 
 

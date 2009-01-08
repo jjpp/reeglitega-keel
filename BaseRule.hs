@@ -19,7 +19,7 @@ data BaseRule = BaseRule {
 				matchExpr, nomatchExpr :: Expression,
 				ruleName :: String, ruleId :: Int
 			}
-	deriving (Eq, Show, Read)
+	deriving (Eq, Show, Read, Ord)
 
 uppercond rule = (uppercond' rule) ++ (postcond rule)
 lowercond rule = (lowercond' rule) ++ (postcond rule)
@@ -29,7 +29,7 @@ lowercond' rule = (precond rule) ++ (BaseRule.lower rule)
 
 
 data BRState = BRState { cw :: Str, vs :: VarState }
-	deriving (Eq, Show)
+	deriving (Eq, Show, Ord)
 
 
 
@@ -154,3 +154,67 @@ dbg str = do return ()
 
 showState :: BRState -> String
 showState s = "{ " ++ (show (cw s)) ++ " " ++ (showVS (vs s)) ++ "}"
+
+---------------------------
+
+anyExpr :: (MonadPlus m) => (Expression -> m a) -> BaseRule -> m a
+anyExpr f r = (f (matchExpr r)) `mplus` (f (nomatchExpr r))
+
+condVars' (In var value) = [var]
+condVars' (Is var value) = [var]
+condVars' (Not c) = condVars' c
+condVars' (And c1 c2) = (condVars' c1) ++ (condVars' c2)
+condVars' (Or c1 c2) = (condVars' c1) ++ (condVars' c2)
+condVars' (Xor c1 c2) = (condVars' c1) ++ (condVars' c2)
+condVars' (Defined var) = [var]
+condVars' _ = []
+condVars'' (Expression c _) = condVars' c
+
+condVars br = anyExpr (condVars'') br
+
+condValues' k (In k' values) | k == k' = S.toList values
+condValues' k (Is k' value) | k == k' = [value]
+condValues' k (Not c) = condValues' k c
+condValues' k (And c1 c2) = (condValues' k c1) ++ (condValues' k c2)
+condValues' k (Or c1 c2) = (condValues' k c1) ++ (condValues' k c2)
+condValues' k (Xor c1 c2) = (condValues' k c1) ++ (condValues' k c2)
+condValues' k (Defined k') | k == k' = ["UNDEFINED"]
+condValues' _ _ = []
+
+condValues'' k (Expression c _) = condValues' k c
+condValues k br = anyExpr (condValues'' k) br
+
+
+actionValue' k (SetVar k' value) | k == k' = [value]
+actionValue' k (UnsetVar k') | k == k' = ["UNDEFINED"];
+actionValue' _ _ = []
+
+actionValues' k (Expression _ ss) = concatMap (actionValue' k) ss
+actionValues k br = anyExpr (actionValues' k) br
+
+
+actionVar' (SetVar k _) = [k]
+actionVar' (UnsetVar k) = [k]
+actionVar' (DeclareVar k _) = [k]
+actionVar' _ = []
+
+actionVars' (Expression _ ss) = concatMap actionVar' ss
+actionVars br = anyExpr actionVars' br
+
+
+
+uniqPrepend :: (Eq a) => [a] -> [a] -> [a]
+uniqPrepend old new = foldl (\as -> \b -> if b `elem` as then as else b:as) old new
+uniq xs = uniqPrepend [] xs
+
+getVarsAndStates rs = foldr updateVarsAndStates M.empty rs 
+updateVarsAndStates :: BaseRule -> Map String Domain -> Map String Domain
+updateVarsAndStates br m = foldr updateVar m allVars
+	where
+		allVars = uniq $ (condVars br)
+		valueAsList Nothing = S.empty
+		valueAsList (Just x) = x
+		newValue k x = Just ((valueAsList x) `S.union` (S.fromList $ condValues k br))
+		updateVar k m = M.alter (newValue k) k m
+
+

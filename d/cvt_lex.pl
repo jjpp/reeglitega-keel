@@ -22,6 +22,8 @@ while (<>) {
 
 	$rule = $kind =~ /V/ ? 'VERB' : 'NOOMEN';
 
+	$muutetyyp = ($type > 38) ? 'muutumatu' : ($type < 27 ? 'knd' : 'prd');
+
 	if ($kind =~ /^(.)/) {
 		$k1 = "; kind = $1";
 	}
@@ -35,5 +37,5 @@ while (<>) {
 		$w =~ s/ma$//;
 	}
 
-	print "{$rule} $w 0 0 { step = lemma_valik: type = $type; step = vaike_tyvi; lemma = $w$k1$2 }\n";
+	print "{$rule} $w 0 0 { step = lemma_valik: type = $type; muutus = $muutetyyp; step = vaike_tyvi; erand = 1; lemma = $w$k1$2 }\n";
 }
