@@ -50,7 +50,7 @@
  {NOOMEN} taevas 0 0 { step = lemma_valik: type = 07; step = vaike_tyvi }
  {NOOMEN} tütar 0 0 { step = lemma_valik: type = 08; step = vaike_tyvi }
  {NOOMEN} katus 0 0 { step = lemma_valik: type = 09; step = vaike_tyvi }
-{NOOMEN} soolane 0 0 { step = lemma_valik: type = 10; muutus = knd; step = vaike_tyvi; lemma = soolane; kind = A }
+{NOOMEN} soolane 0 0 { step = lemma_valik: type = 10; muutus = knd; step = vaike_tyvi; lemma = soolane; kind = A; erand = 1 }
  {NOOMEN} harjutus 0 0 { step = lemma_valik: type = 11; step = vaike_tyvi }
  {NOOMEN} oluline 0 0 { step = lemma_valik: type = 12; step = vaike_tyvi }
  {NOOMEN} s'uur 0 0 { step = lemma_valik: type = 13; step = vaike_tyvi }

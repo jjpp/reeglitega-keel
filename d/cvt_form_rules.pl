@@ -95,7 +95,7 @@ sub process_exceptions {
 		my $cond = "$clean_stem && substep = vormierandid && lemma = $lemma && target_form = $formcode $homoclause";
 
 		print "$stem $form 0 # { $cond: unset target_form; form = $formcode; step = para_deriv; unset substep; erand = 1 }\n" unless ($form eq 'X');
-		push @exception_stoppers, "0 0 0 0 { $cond: stop = 1 }\n" if ($exctype eq '*');
+		push @exception_stoppers, "0 0 0 0 { $cond: stop = 1; erand = 1 }\n" if ($exctype eq '*');
 	}
 	close(E);
 }

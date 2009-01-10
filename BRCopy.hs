@@ -90,11 +90,9 @@ something Nothing  = False
 
 optimize ps = ps { rules = optimizedRules  }
 	where
-		rs = rules ps
-		optimizedRules = case applicableRule rs of
-					Nothing -> rs
-					-- Just r -> rules $ optimize (ps { rules = preapply r rs })
-					Just r -> preapply r rs
+		rs = reverse $ rules ps
+
+		optimizedRules = reverse $ maybe rs ((flip preapply) rs) (applicableRule rs)
 		varsAndStates = getVarsAndStates rs
 		applicableRule rs = msum $ Prelude.map (isApplicable rs) rs
 		isApplicable rs r = if any (something . applied True r) rs then Just r else Nothing
@@ -123,15 +121,37 @@ optimize ps = ps { rules = optimizedRules  }
 					where cv = condValues v r
 				setVar v x s = run (if x == "UNDEFINED" then (UnsetVar v) else (SetVar v x)) s
 				isIn = isInClasses $ classes ps
+
 		possibleApps ww r rs = Prelude.filter (something . applied ww r) rs
+
+-- leia kõik võimalikud rakendamispunktid
+-- iga jaoks: kui see on ainus rakendamisvõimalus, siis rakenda ja asenda. 
+-- kui mõni veel on, siis rakenda, eemalda stop ja lisa vahetult alles jääva esinemise ette
 		preapply r rs = trace ("preapply " ++ (show r) ++ "\naps = " ++ (show $ length aps) ++ "\n\n") $ selfremove $ foldr (preapply' r) rs aps
 			where 	aps = possibleApps True r rs
 				selfremove = if (something $ applied' False r r) then id else (removeRule r)
-		preapply' r' r rs = trace ("preapply' " ++ (show r) ++ " + " ++ (show r') ++ "\n") $ if length aps == 1 
-				then replaceRule r (mergeRules r r') rs 
-				else insertBefore r (unstop $ mergeRules r r') rs
-			where aps = possibleApps False r' rs
-		mergeRules r r' = r { matchExpr = mergeExpr (matchExpr r) (matchExpr r') }
+
+		preapply' r' r rs = trace ("preapply' " ++ (show r) ++ " + " ++ (show r') ++ "\n -> " ++ (show merged) ++ "\n") $ 
+			if length aps == 1 
+				then replaceRule r (merged) rs 
+				else insertBefore r (unstop $ merged) rs
+			where 	aps = possibleApps False r' rs
+				applied = -- trace ("applied': " ++ (show r') ++ " + " ++ (show r)) $ 
+					applied' True r' r
+				old = uppercond r
+				new = case applied of
+					Just x -> cw x
+					Nothing -> error "Nii ei saa olla, et liidetavad reeglid pole üksteisele rakendatavad"
+				tuple' = resplit old new
+				merged = mergeRules r r' tuple'
+
+		mergeRules r r' (up, low, left, right) = r { 
+								matchExpr = mergeExpr (matchExpr r) (matchExpr r'),
+								upper = up,
+								lower = low,
+								precond = left,
+								postcond = right
+							}
 		mergeExpr e e' = Expression (condOf e) (mergeActions (actionOf e) (actionOf e'))
 
 rawLength xs = rawLength' xs 0
@@ -161,12 +181,25 @@ replaceRule old new [] = []
 removeRule old (r:rs) = if (ruleId r == ruleId old) then rs else r:(removeRule old rs)
 removeRule old [] = []
 
--- reeglid on tagurpidi j'rjekorras..
 insertBefore old new (r:rs) = -- trace ("insertBefore " ++ (show new)) $ 
-	if (ruleId r == ruleId old) then r:new:rs else r:(insertBefore old new rs)
+	if (ruleId r == ruleId old) then new:r:rs else r:(insertBefore old new rs)
 insertBefore old new [] = []
 			
--- leia kõik võimalikud rakendamispunktid
--- iga jaoks: kui see on ainus rakendamisvõimalus, siis rakenda ja asenda. 
--- kui mõni veel on, siis rakenda, eemalda stop ja lisa vahetult alles jääva esinemise ette
+
+resplit :: String -> String -> (String, String, String, String) 
+resplit a b | a == b = (a, b, "", "")
+resplit a b | otherwise = (upper, lower, left, right) 
+	where
+		(left, a', b') = commonPrefix a b
+		(right, upper, lower) = commonPrefix a' b'
+
+commonPrefix :: String -> String -> (String, String, String)
+commonPrefix a b | a == b = (a, "", "")
+commonPrefix a b | otherwise = (prefix, revA, revB) 
+	where
+		prefix = Prelude.map fst $ takeWhile (\(a, b) -> a == b) $ zip a b
+		l = length prefix
+		revA = reverse $ drop l a
+		revB = reverse $ drop l b
+
 
