@@ -7,3 +7,6 @@ sltester
 brtester
 bropt
 brcp
+brcond
+brst
+bror
