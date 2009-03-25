@@ -42,12 +42,8 @@ data Cond = In Name Domain
 	deriving (Show, Read, Eq, Ord)
 
 eval :: Cond -> VarState -> Bool
-eval (Is var value) vars = case (Map.lookup var vars) of
-				Just x -> x == value 
-				Nothing -> False
-eval (In var values) vars = case (Map.lookup var vars) of
-				Just x -> x `Set.member` values
-				Nothing -> False
+eval (Is var value) vars = maybe False (== value) (Map.lookup var vars) 
+eval (In var values) vars = maybe False ((flip Set.member) values) (Map.lookup var vars)
 eval (Defined var) vars = var `Map.member` vars
 eval (Not cond) vars = not $ eval cond vars
 eval (And c1 c2) vars = (eval c1 vars) && (eval c2 vars)
@@ -63,7 +59,7 @@ variablePairs = Map.toList
 
 run :: Statement -> VarState -> VarState
 run (DeclareVar _ _) x = error "declare is unimplemented"
-run (SetVar var value) state = Map.alter (\x -> Just value) var state
+run (SetVar var value) state = Map.insert var value state
 run (UnsetVar var) state = Map.delete var state
 run (Nop) state = state
 
@@ -101,8 +97,8 @@ possibleEval CTrue _ = True
 
 emptyRun :: Statement -> VarState -> VarState
 emptyRun (DeclareVar _ _) x = error "declare is unimplemented"
-emptyRun (SetVar var value) state = Map.alter (\x -> Just value) var state
-emptyRun (UnsetVar var) state = Map.alter (\x -> Just undefinedValue) var state
+emptyRun (SetVar var value) state = Map.insert var value state
+emptyRun (UnsetVar var) state = Map.insert var undefinedValue state
 emptyRun (Nop) state = state
 
 data TriState = TSFalse | TSDN | TSTrue 

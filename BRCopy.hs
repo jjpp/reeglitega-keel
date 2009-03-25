@@ -92,16 +92,19 @@ optimize ps = ps { rules = optimizedRules  }
 	where
 		rs = reverse $ rules ps
 
-		optimizedRules = reverse $ maybe rs ((flip preapply) rs) (applicableRule rs)
+		optimizedRules = reverse $ preapply_ rs (applicableRule rs)
 		varsAndStates = getVarsAndStates rs
-		applicableRule rs = msum $ Prelude.map (isApplicable rs) rs
+		applicableRule rs = Prelude.map (isApplicable rs) rs
 		isApplicable rs r = if any (something . applied True r) rs then Just r else Nothing
-		applied ww r' r = if (ruleId r') == (ruleId r) then Nothing else
-				if "erand" `elem` (actionVars r') then Nothing else 
-				if "erand" `elem` (actionVars r) then Nothing else 
+		applied ww r' r = 
+				if (ruleId r') == (ruleId r) then Nothing else
+--				if "erand" `elem` (actionVars r') then Nothing else 
+--				if "erand" `elem` (actionVars r) then Nothing else 
+--				if "stop" `elem` (actionVars r') then Nothing else 
+--				if "stop" `elem` (actionVars r) then Nothing else 
 				applied' ww r' r
 		applied' ww r' r = 
-				--trace ("checking brapply': '" ++ (show suffix) ++ "', " ++ (show stateAfter) ++ ", " ++ (show r)) $ 
+				-- trace ("checking brapply': '" ++ (show suffix) ++ "', " ++ (show stateAfter) ++ ", " ++ (show r)) $ 
 				if ww 
 					then brapply' isIn (BRState { cw = suffix, vs = stateAfter }) r'
 					else case apply (matchExpr r) stateAfter of 
@@ -124,17 +127,31 @@ optimize ps = ps { rules = optimizedRules  }
 
 		possibleApps ww r rs = Prelude.filter (something . applied ww r) rs
 
+-- [BaseRule] -> [Maybe Rule] -> [BaseRule]
+		preapply_ rs [] = rs
+		preapply_ rs (Nothing:rs') = preapply_ rs rs'
+		preapply_ rs ((Just r):rs') = if newrs == rs 
+						then preapply_ rs rs'
+						else newrs
+					where newrs = preapply r rs
+
 -- leia kõik võimalikud rakendamispunktid
 -- iga jaoks: kui see on ainus rakendamisvõimalus, siis rakenda ja asenda. 
 -- kui mõni veel on, siis rakenda, eemalda stop ja lisa vahetult alles jääva esinemise ette
-		preapply r rs = trace ("preapply " ++ (show r) ++ "\naps = " ++ (show $ length aps) ++ "\n\n") $ selfremove $ foldr (preapply' r) rs aps
+		preapply r rs = trace ("preapply " ++ (show r) ++ "\naps = " ++ (show $ length aps) ++ "\n\n") $
+					selfremove $ foldr (preapply' (length aps == 1) r) rs aps
 			where 	aps = possibleApps True r rs
 				selfremove = if (something $ applied' False r r) then id else (removeRule r)
 
-		preapply' r' r rs = trace ("preapply' " ++ (show r) ++ " + " ++ (show r') ++ "\n -> " ++ (show merged) ++ "\n") $ 
-			if length aps == 1 
+		preapply' single r' r rs = trace ("preapply' (" ++ (show $ length aps) ++ ")\n "
+						++ (show r) ++ "\n + " 
+						++ (show r') ++ "\n -> " 
+						++ (show merged) ++ "\n\n"
+						++ (show unstopped) ++ "\n\n"
+						) $ 
+			if length aps == 1 || rulesEq unstopped r'
 				then replaceRule r (merged) rs 
-				else insertBefore r (unstop $ merged) rs
+				else insertBefore r (unstopped) rs
 			where 	aps = possibleApps False r' rs
 				applied = -- trace ("applied': " ++ (show r') ++ " + " ++ (show r)) $ 
 					applied' True r' r
@@ -144,6 +161,7 @@ optimize ps = ps { rules = optimizedRules  }
 					Nothing -> error "Nii ei saa olla, et liidetavad reeglid pole üksteisele rakendatavad"
 				tuple' = resplit old new
 				merged = mergeRules r r' tuple'
+				unstopped = unstop $ merged
 
 		mergeRules r r' (up, low, left, right) = r { 
 								matchExpr = mergeExpr (matchExpr r) (matchExpr r'),
@@ -153,6 +171,15 @@ optimize ps = ps { rules = optimizedRules  }
 								postcond = right
 							}
 		mergeExpr e e' = Expression (condOf e) (mergeActions (actionOf e) (actionOf e'))
+
+rulesEq a b = 
+		((matchExpr a) == (matchExpr b)) &&
+		((nomatchExpr a) == (nomatchExpr b)) &&
+		((upper a) == (upper b)) &&
+		((lower a) == (lower b)) &&
+		((precond a) == (precond b)) &&
+		((postcond a) == (postcond b))
+		
 
 rawLength xs = rawLength' xs 0
 rawLength' [] l = l

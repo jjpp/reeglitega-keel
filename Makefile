@@ -6,6 +6,7 @@ clean:
 SETLANG=SetLangParser.hs SetLangLexer.hs SetLang.hs
 BASERULE=BaseRule.hs RuleParser.hs
 GHC=ghc -O2 -funfolding-use-threshold=16
+#-prof -auto-all -caf-all -fforce-recomp
 
 SetLangLexer.hs: SetLangLexer.x
 	alex SetLangLexer.x -o SetLangLexer.hs
