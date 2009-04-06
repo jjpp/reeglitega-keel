@@ -1,0 +1,52 @@
+
+
+See siin on osa materjalidest, mis tekkisid riikliku programmi "Eesti
+keele keeletehnoloogiline tugi (2006-2010)" projekti "Reeglipõhine
+keeletarkvara" raames ning ka pärast projekti lõppu. 
+
+
+Olemasolevad jupid:
+
+ - setlang: pisike keel lihtsa võti-väärtus paaridest koosneva oleku
+   muutmiseks ning oleku alusel arvutatavate tingimuslausete
+   kirjutamiseks.
+
+ - baserule: reegliformaat ja reeglite rakendamismootor, mille
+   elementaarreegel koosneb EKI-stiilis teisendusreeglist ja kuni kahest
+   setlang-avaldisest, mille abil saab reeglite rakendamise mootori tööd
+   juhtida.
+
+ - parser reeglifailide lugemiseks. Reeglifail sisaldab lisaks
+   elementaarreeglitele ka tähestikukirjeldust, algsümbolit jms
+
+ - vahendid reeglifailide teisendamiseks (nt mingit sorti lihtsustuste
+   tegemiseks)
+
+ - vahendid EKI erinevate reeglifailide teisendamiseks
+   elementaarreegliteks.
+
+
+Puuduolevad jupid:
+
+ - vahend reeglitekomplektide teisendamiseks mõne praktilise rakenduse
+   sisendformaati (nt hunspell'i sõnastikuformaati)
+
+
+------
+
+
+Eeldused kasutaja-arendaja süsteemile:
+
+ - haskell'i kompilaator (elementaarreeglite töötlemise vahendid,
+   testitud ghc6'ga)
+ - parserigeneraator alex (setlang'i parser kasutab alexit, tuleks
+   tegelikult parseci peale ümber kirjutada)
+ - parserikombinaatorite teek parsec (reeglifailide parsimiseks)
+ - perl (EKI reeglifailide teisendajad, perl5)
+
+
+------
+
+Head mõtted ja arendusettepanekud saata: jjpp@meso.ee
+
+

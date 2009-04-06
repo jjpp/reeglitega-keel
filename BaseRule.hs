@@ -1,6 +1,6 @@
 module BaseRule where
 
-import Text.Regex;
+--import Text.Regex;
 import SetLang;
 import SetLangParser;
 import Control.Monad;

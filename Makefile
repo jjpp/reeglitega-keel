@@ -6,6 +6,7 @@ clean:
 SETLANG=SetLangParser.hs SetLangLexer.hs SetLang.hs
 BASERULE=BaseRule.hs RuleParser.hs
 GHC=ghc -O2 -funfolding-use-threshold=16
+TAR=tar
 #-prof -auto-all -caf-all -fforce-recomp
 
 SetLangLexer.hs: SetLangLexer.x
@@ -34,3 +35,10 @@ brcond: BRByCond.hs BRCopy.hs $(SETLANG) $(BASERULE)
 
 bror: BROptRule.hs BRCopy.hs $(SETLANG) $(BASERULE)
 	$(GHC) --make -o bror BROptRule.hs
+
+ekidata/lemma.dic.asendatud: ekidata.tgz
+	$(TAR) xzvf ekidata.tgz
+
+rules: ekidata/lemma.dic.asendatud
+	cd d; make
+

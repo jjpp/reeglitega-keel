@@ -5,6 +5,8 @@ import RuleParser
 import SetLang
 import Data.Map as M
 import Data.Set as S
+import System.IO.Unsafe
+import System
 import System.IO.UTF8 as UTF8
 import System (getArgs)
 import Control.Monad
@@ -88,13 +90,16 @@ filterByVars vs ps = ps { rules = applicableRules vs (rules ps) }
 something (Just _) = True
 something Nothing  = False
 
+skippedRules :: Int
+skippedRules = read $ unsafePerformIO $ getEnv "SKIPPED_RULES"
+
 optimize ps = ps { rules = optimizedRules  }
 	where
 		rs = reverse $ rules ps
 
 		optimizedRules = reverse $ preapply_ rs (applicableRule rs)
 		varsAndStates = getVarsAndStates rs
-		applicableRule rs = Prelude.map (isApplicable rs) rs
+		applicableRule rs = drop skippedRules $ Prelude.map (isApplicable rs) rs
 		isApplicable rs r = if any (something . applied True r) rs then Just r else Nothing
 		applied ww r' r = 
 				if (ruleId r') == (ruleId r) then Nothing else
